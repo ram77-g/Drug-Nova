@@ -11,13 +11,21 @@ import { ProteinViewer3D } from "@/components/protein/ProteinViewer3D";
 // ─── Protein list ────────────────────────────────────────────────────────────
 const FEATURED_PROTEINS = [
   { id: "P02649", name: "Apolipoprotein E",        pdb: "1NFN", disease: "Alzheimer's" },
+  { id: "P05067", name: "Amyloid Precursor Protein",pdb: "1AAP", disease: "Alzheimer's" },
+  { id: "P49768", name: "Presenilin-1",            pdb: null,   disease: "Alzheimer's" },
   { id: "P37840", name: "Alpha-synuclein",          pdb: "1XQ8", disease: "Parkinson's" },
-  { id: "Q9BYF1", name: "ACE2 Receptor",            pdb: "6M0J", disease: "COVID-19" },
+  { id: "Q5S007", name: "LRRK2",                   pdb: null,   disease: "Parkinson's" },
+  { id: "Q99497", name: "DJ-1",                    pdb: null,   disease: "Parkinson's" },
+  { id: "P38398", name: "BRCA1",                   pdb: null,   disease: "Breast Cancer" },
+  { id: "P04637", name: "p53",                     pdb: null,   disease: "Breast Cancer" },
   { id: "P04626", name: "HER2 / ErbB2",             pdb: "1N8Z", disease: "Breast Cancer" },
+  { id: "P01308", name: "Insulin",                 pdb: null,   disease: "Type 2 Diabetes" },
+  { id: "P37231", name: "PPARG",                   pdb: null,   disease: "Type 2 Diabetes" },
+  { id: "Q9BYF1", name: "ACE2 Receptor",            pdb: "6M0J", disease: "COVID-19" },
+  { id: "O15393", name: "TMPRSS2",                 pdb: null,   disease: "COVID-19" },
+  { id: "P05231", name: "Interleukin-6",            pdb: "1IL6", disease: "COVID-19 / RA" },
   { id: "P01375", name: "TNF-alpha",                pdb: "2AZ5", disease: "Rheumatoid Arthritis" },
   { id: "P23458", name: "JAK1",                     pdb: "3EYG", disease: "Rheumatoid Arthritis" },
-  { id: "P05231", name: "Interleukin-6",            pdb: "1IL6", disease: "COVID-19 / RA" },
-  { id: "P05067", name: "Amyloid Precursor Protein",pdb: "1AAP", disease: "Alzheimer's" },
 ];
 
 // ─── PDB Viewer ──────────────────────────────────────────────────────────────
@@ -234,6 +242,9 @@ function ProteinViewerContent() {
                 background: "rgba(13,20,37,0.8)",
                 border: "1px solid rgba(30,45,74,0.6)",
                 overflow: "hidden",
+                display: "flex",
+                flexDirection: "column",
+                maxHeight: "560px",
               }}
             >
               <div
@@ -242,10 +253,12 @@ function ProteinViewerContent() {
                   fontSize: 10, fontFamily: "monospace",
                   color: "#4b5a78", letterSpacing: "0.1em",
                   borderBottom: "1px solid rgba(30,45,74,0.4)",
+                  flexShrink: 0,
                 }}
               >
                 FEATURED PROTEINS
               </div>
+              <div style={{ overflowY: "auto", flex: 1, paddingRight: 4 }}>
               {FEATURED_PROTEINS.map((p) => {
                 const active = selectedId === p.id;
                 return (
@@ -288,6 +301,7 @@ function ProteinViewerContent() {
                   </button>
                 );
               })}
+              </div>
             </div>
           </div>
 
@@ -338,6 +352,15 @@ function ProteinViewerContent() {
                         }}
                       >
                         {protein.uniprot_id}
+                      </span>
+                      {/* Protein Name Badge/Label */}
+                      <span
+                        style={{
+                          padding: "3px 0px", fontSize: 13, fontWeight: 500,
+                          color: "#c8d6f0", display: "flex", alignItems: "center"
+                        }}
+                      >
+                        {protein.protein_name !== "Protein Structure" ? protein.protein_name : ""}
                       </span>
                       {/* PDB badge */}
                       {currentPdb && (

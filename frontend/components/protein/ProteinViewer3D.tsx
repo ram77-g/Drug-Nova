@@ -23,7 +23,7 @@ export function ProteinViewer3D({ pdbId, uniprotId }: ProteinViewer3DProps) {
   const compRef = useRef<any>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [errorMsg, setErrorMsg] = useState("");
-  const [viewMode, setViewMode] = useState<"cartoon" | "stick">("cartoon");
+  const [viewMode, setViewMode] = useState<"cartoon" | "surface" | "stick">("cartoon");
   const previousViewMode = useRef(viewMode);
 
   useEffect(() => {
@@ -125,10 +125,10 @@ export function ProteinViewer3D({ pdbId, uniprotId }: ProteinViewer3DProps) {
             roughness: 0.5,
             metalness: 0.1,
           });
-
-          // Surface (subtle)
+        } else if (viewMode === "surface") {
+          // Surface representation
           component.addRepresentation("surface", {
-            opacity: 0.08,
+            opacity: 0.8,
             colorScheme: "electrostatic",
           });
         } else {
@@ -174,8 +174,9 @@ export function ProteinViewer3D({ pdbId, uniprotId }: ProteinViewer3DProps) {
           roughness: 0.5,
           metalness: 0.1,
         });
+      } else if (viewMode === "surface") {
         compRef.current.addRepresentation("surface", {
-          opacity: 0.08,
+          opacity: 0.8,
           colorScheme: "electrostatic",
         });
       } else {
@@ -342,7 +343,24 @@ export function ProteinViewer3D({ pdbId, uniprotId }: ProteinViewer3DProps) {
               transition: "all 0.2s",
             }}
           >
-            Cartoon & Surface
+            Cartoon
+          </button>
+          <button
+            onClick={() => setViewMode("surface")}
+            style={{
+              padding: "8px 16px",
+              fontSize: 13,
+              fontFamily: "Inter, sans-serif",
+              fontWeight: 500,
+              color: viewMode === "surface" ? "#00d4ff" : "#6b7fa3",
+              background: viewMode === "surface" ? "rgba(0,212,255,0.1)" : "transparent",
+              border: "none",
+              borderLeft: "1px solid rgba(30,45,74,0.6)",
+              cursor: "pointer",
+              transition: "all 0.2s",
+            }}
+          >
+            Surface
           </button>
           <button
             onClick={() => setViewMode("stick")}

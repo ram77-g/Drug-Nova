@@ -64,6 +64,62 @@ PROTEIN_STRUCTURES: dict[str, ProteinStructureResponse] = {
         pdb_id="3EYG",
         description="JAK1 is a key signal transducer in inflammatory cytokine pathways, targeted by baricitinib and other JAK inhibitors.",
     ),
+    "P49768": ProteinStructureResponse(
+        uniprot_id="P49768",
+        protein_name="Presenilin-1",
+        alphafold_url="https://alphafold.ebi.ac.uk/entry/P49768",
+        pdb_id=None,
+        description="Gamma-secretase catalytic subunit; regulates Notch/Abeta42 production in Alzheimer's.",
+    ),
+    "Q5S007": ProteinStructureResponse(
+        uniprot_id="Q5S007",
+        protein_name="LRRK2",
+        alphafold_url="https://alphafold.ebi.ac.uk/entry/Q5S007",
+        pdb_id=None,
+        description="Serine/threonine kinase; regulates vesicle trafficking. Mutations are a major genetic cause of Parkinson's.",
+    ),
+    "Q99497": ProteinStructureResponse(
+        uniprot_id="Q99497",
+        protein_name="DJ-1",
+        alphafold_url="https://alphafold.ebi.ac.uk/entry/Q99497",
+        pdb_id=None,
+        description="Oxidative stress sensor and neuroprotector implicated in Parkinson's disease.",
+    ),
+    "P38398": ProteinStructureResponse(
+        uniprot_id="P38398",
+        protein_name="BRCA1",
+        alphafold_url="https://alphafold.ebi.ac.uk/entry/P38398",
+        pdb_id=None,
+        description="DNA repair, transcription regulation, and tumor suppression. Highly relevant in breast cancer.",
+    ),
+    "P04637": ProteinStructureResponse(
+        uniprot_id="P04637",
+        protein_name="p53",
+        alphafold_url="https://alphafold.ebi.ac.uk/entry/P04637",
+        pdb_id=None,
+        description="Transcription factor; apoptosis inducer; genome guardian. Often mutated in cancers.",
+    ),
+    "P01308": ProteinStructureResponse(
+        uniprot_id="P01308",
+        protein_name="Insulin",
+        alphafold_url="https://alphafold.ebi.ac.uk/entry/P01308",
+        pdb_id=None,
+        description="Glucose homeostasis hormone; anabolic regulator central to Type 2 Diabetes.",
+    ),
+    "P37231": ProteinStructureResponse(
+        uniprot_id="P37231",
+        protein_name="PPARG",
+        alphafold_url="https://alphafold.ebi.ac.uk/entry/P37231",
+        pdb_id=None,
+        description="Nuclear receptor; adipogenesis and insulin sensitivity regulator.",
+    ),
+    "O15393": ProteinStructureResponse(
+        uniprot_id="O15393",
+        protein_name="TMPRSS2",
+        alphafold_url="https://alphafold.ebi.ac.uk/entry/O15393",
+        pdb_id=None,
+        description="Serine protease priming spike protein for cell entry in COVID-19.",
+    ),
 }
 
 
