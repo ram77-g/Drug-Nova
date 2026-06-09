@@ -9,10 +9,20 @@ from routers import disease, drugs, graph, ai_explain, protein
 
 load_dotenv()
 
+from contextlib import asynccontextmanager
+from db.mongodb import connect_to_mongo, close_mongo_connection
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await connect_to_mongo()
+    yield
+    await close_mongo_connection()
+
 app = FastAPI(
     title="Drug Nova API",
     description="AI-powered drug repurposing platform backend",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 # CORS — allow local Next.js dev server
