@@ -19,6 +19,7 @@ import type { KnowledgeGraphResponse, GraphNode } from "@/types";
 import { nodeTypeColor } from "@/lib/utils";
 import { getKnowledgeGraph } from "@/lib/api";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { NodeDetailSidebar } from "@/components/graph/NodeDetailSidebar";
 
 // Custom node colors and layout config by type
 const NODE_CONFIG: Record<string, { bg: string; border: string; glow: string; size: number }> = {
@@ -141,6 +142,7 @@ export function KnowledgeGraph({ diseaseName }: KnowledgeGraphProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [graphData, setGraphData] = useState<KnowledgeGraphResponse | null>(null);
+  const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),
@@ -199,6 +201,10 @@ export function KnowledgeGraph({ diseaseName }: KnowledgeGraphProps) {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onNodeClick={(_, node) => {
+          const originalData = graphData?.nodes.find((n) => n.id === node.id);
+          if (originalData) setSelectedNode(originalData);
+        }}
         fitView
         fitViewOptions={{ padding: 0.3 }}
         attributionPosition="bottom-right"
@@ -228,6 +234,12 @@ export function KnowledgeGraph({ diseaseName }: KnowledgeGraphProps) {
           maskColor="rgba(5,8,16,0.8)"
         />
       </ReactFlow>
+
+      {/* Node Detail Sidebar */}
+      <NodeDetailSidebar
+        node={selectedNode}
+        onClose={() => setSelectedNode(null)}
+      />
     </div>
   );
 }

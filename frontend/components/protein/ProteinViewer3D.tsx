@@ -19,8 +19,12 @@ export function ProteinViewer3D({ pdbId, uniprotId }: ProteinViewer3DProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const stageRef = useRef<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const compRef = useRef<any>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [errorMsg, setErrorMsg] = useState("");
+  const [viewMode, setViewMode] = useState<"cartoon" | "stick">("cartoon");
+  const previousViewMode = useRef(viewMode);
 
   useEffect(() => {
     let cancelled = false;
@@ -62,36 +66,79 @@ export function ProteinViewer3D({ pdbId, uniprotId }: ProteinViewer3DProps) {
         const handleResize = () => stage.handleResize();
         window.addEventListener("resize", handleResize);
 
-        // Build the data URL — prefer PDB, fallback to AlphaFold CIF
-        let dataUrl: string;
-        let ext: string;
+        // Build the data URL — prefer local downloaded files first, then fallback to online APIs
+        let component = null;
+        let loaded = false;
 
-        if (pdbId) {
-          dataUrl = `rcsb://${pdbId}`;
-          ext = "pdb";
-        } else {
-          dataUrl = `https://alphafold.ebi.ac.uk/files/AF-${uniprotId}-F1-model_v4.cif`;
-          ext = "cif";
+        const localOptions: { url: string, ext: string }[] = [
+          { url: `/structures/${uniprotId}.pdb`, ext: "pdb" },
+          { url: `/structures/${uniprotId}.cif`, ext: "cif" },
+          { url: `/structures/AF-${uniprotId}-F1-model_v6.pdb`, ext: "pdb" },
+          { url: `/structures/AF-${uniprotId}-F1-model_v6.cif`, ext: "cif" },
+          { url: `/structures/AF-${uniprotId}-F1-model_v4.pdb`, ext: "pdb" },
+          { url: `/structures/AF-${uniprotId}-F1-model_v4.cif`, ext: "cif" },
+        ];
+
+        for (let i = 2; i <= 10; i++) {
+          localOptions.push({ url: `/structures/AF-${uniprotId}-${i}-F1-model_v6.pdb`, ext: "pdb" });
+          localOptions.push({ url: `/structures/AF-${uniprotId}-${i}-F1-model_v6.cif`, ext: "cif" });
+          localOptions.push({ url: `/structures/AF-${uniprotId}-${i}-F1-model_v4.pdb`, ext: "pdb" });
+          localOptions.push({ url: `/structures/AF-${uniprotId}-${i}-F1-model_v4.cif`, ext: "cif" });
         }
 
-        const component = await stage.loadFile(dataUrl, { ext });
-        if (cancelled) { stage.dispose(); return; }
+        for (const opt of localOptions) {
+          try {
+            const check = await fetch(opt.url, { method: "HEAD" });
+            if (check.ok) {
+              component = await stage.loadFile(opt.url, { ext: opt.ext });
+              loaded = true;
+              break;
+            }
+          } catch {
+            // Silently fail and check next local option
+          }
+        }
+
+        if (!loaded) {
+          let dataUrl: string;
+          let ext: string;
+          if (pdbId) {
+            dataUrl = `rcsb://${pdbId}`;
+            ext = "pdb";
+          } else {
+            dataUrl = `https://alphafold.ebi.ac.uk/files/AF-${uniprotId}-F1-model_v4.cif`;
+            ext = "cif";
+          }
+          component = await stage.loadFile(dataUrl, { ext });
+        }
+
+        if (cancelled) {
+          stage.dispose();
+          return;
+        }
 
         // Cartoon representation with cyan/violet coloring
-        component.addRepresentation("cartoon", {
-          colorScheme: "residueindex",
-          colorScale: "RdYlBu",
-          roughness: 0.5,
-          metalness: 0.1,
-        });
+        if (viewMode === "cartoon") {
+          component.addRepresentation("cartoon", {
+            colorScheme: "residueindex",
+            colorScale: "RdYlBu",
+            roughness: 0.5,
+            metalness: 0.1,
+          });
 
-        // Surface (subtle)
-        component.addRepresentation("surface", {
-          opacity: 0.08,
-          colorScheme: "electrostatic",
-        });
+          // Surface (subtle)
+          component.addRepresentation("surface", {
+            opacity: 0.08,
+            colorScheme: "electrostatic",
+          });
+        } else {
+          component.addRepresentation("ball+stick", {
+            colorScheme: "element",
+          });
+        }
 
         component.autoView();
+        compRef.current = component;
         setStatus("ready");
 
         return () => {
@@ -116,18 +163,42 @@ export function ProteinViewer3D({ pdbId, uniprotId }: ProteinViewer3DProps) {
     };
   }, [pdbId, uniprotId]);
 
+  useEffect(() => {
+    if (compRef.current && status === "ready" && previousViewMode.current !== viewMode) {
+      previousViewMode.current = viewMode;
+      compRef.current.removeAllRepresentations();
+      if (viewMode === "cartoon") {
+        compRef.current.addRepresentation("cartoon", {
+          colorScheme: "residueindex",
+          colorScale: "RdYlBu",
+          roughness: 0.5,
+          metalness: 0.1,
+        });
+        compRef.current.addRepresentation("surface", {
+          opacity: 0.08,
+          colorScheme: "electrostatic",
+        });
+      } else {
+        compRef.current.addRepresentation("ball+stick", {
+          colorScheme: "element",
+        });
+      }
+    }
+  }, [viewMode, status]);
+
   return (
-    <div
-      style={{
-        position: "relative",
-        width: "100%",
-        height: 460,
-        borderRadius: 14,
-        overflow: "hidden",
-        background: "#050810",
-        border: "1px solid rgba(0,212,255,0.2)",
-      }}
-    >
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      <div
+        style={{
+          position: "relative",
+          width: "100%",
+          height: 460,
+          borderRadius: 14,
+          overflow: "hidden",
+          background: "#050810",
+          border: "1px solid rgba(0,212,255,0.2)",
+        }}
+      >
       {/* NGL mounts here */}
       <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
 
@@ -244,6 +315,54 @@ export function ProteinViewer3D({ pdbId, uniprotId }: ProteinViewer3DProps) {
         @keyframes spin3d { to { transform: rotate(360deg); } }
         @keyframes blink3d { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
       `}</style>
+      </div>
+
+      {/* View mode toggle button */}
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <div
+          style={{
+            display: "flex",
+            background: "rgba(13,20,37,0.8)",
+            border: "1px solid rgba(30,45,74,0.6)",
+            borderRadius: 8,
+            overflow: "hidden",
+          }}
+        >
+          <button
+            onClick={() => setViewMode("cartoon")}
+            style={{
+              padding: "8px 16px",
+              fontSize: 13,
+              fontFamily: "Inter, sans-serif",
+              fontWeight: 500,
+              color: viewMode === "cartoon" ? "#00d4ff" : "#6b7fa3",
+              background: viewMode === "cartoon" ? "rgba(0,212,255,0.1)" : "transparent",
+              border: "none",
+              cursor: "pointer",
+              transition: "all 0.2s",
+            }}
+          >
+            Cartoon & Surface
+          </button>
+          <button
+            onClick={() => setViewMode("stick")}
+            style={{
+              padding: "8px 16px",
+              fontSize: 13,
+              fontFamily: "Inter, sans-serif",
+              fontWeight: 500,
+              color: viewMode === "stick" ? "#00d4ff" : "#6b7fa3",
+              background: viewMode === "stick" ? "rgba(0,212,255,0.1)" : "transparent",
+              border: "none",
+              borderLeft: "1px solid rgba(30,45,74,0.6)",
+              cursor: "pointer",
+              transition: "all 0.2s",
+            }}
+          >
+            Ball & Stick
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

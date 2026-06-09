@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { getProteinStructure } from "@/lib/api";
 import type { ProteinStructureResponse } from "@/types";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
+import { ProteinViewer3D } from "@/components/protein/ProteinViewer3D";
 
 // ─── Protein list ────────────────────────────────────────────────────────────
 const FEATURED_PROTEINS = [
@@ -255,8 +256,9 @@ function ProteinViewerContent() {
                       width: "100%", textAlign: "left",
                       padding: "10px 14px",
                       background: active ? "rgba(0,212,255,0.07)" : "transparent",
+                      borderTop: "none",
+                      borderRight: "none",
                       borderLeft: active ? "2px solid #00d4ff" : "2px solid transparent",
-                      border: "none",
                       borderBottom: "1px solid rgba(30,45,74,0.3)",
                       cursor: "pointer",
                       transition: "all 0.15s",
@@ -395,7 +397,7 @@ function ProteinViewerContent() {
                 </div>
 
                 {/* 3D Viewer */}
-                <MolStarViewer pdbId={currentPdb} uniprotId={protein.uniprot_id} />
+                <ProteinViewer3D pdbId={currentPdb} uniprotId={protein.uniprot_id} />
 
                 {/* Source note */}
                 <p
