@@ -83,8 +83,8 @@ export function Navbar() {
             />
             <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#22c55e", display: "block" }} />
           </span>
-          <span style={{ fontSize: "12px", color: "#6b7fa3", fontFamily: "monospace" }}>
-            API Live
+          <span style={{ fontSize: "12px", color: "#1ebeebff", fontFamily: "monospace" }}>
+            QUAD Agents
           </span>
         </div>
       </div>

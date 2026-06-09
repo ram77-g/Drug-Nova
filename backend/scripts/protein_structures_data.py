@@ -16,7 +16,6 @@ PROTEIN_STRUCTURES = {
     
     # Breast Cancer
     "P38398": ProteinStructureResponse(uniprot_id="P38398", protein_name="BRCA1", alphafold_url="https://alphafold.ebi.ac.uk/entry/P38398", pdb_id=None, description="DNA repair, transcription regulation, and tumor suppression. Highly relevant in breast cancer."),
-    "P51587": ProteinStructureResponse(uniprot_id="P51587", protein_name="BRCA2", alphafold_url="https://alphafold.ebi.ac.uk/entry/P51587", pdb_id=None, description="Tumor suppressor involved in repair of chromosomal damage with an important role in error-free repair of DNA double-strand breaks."),
     "P04637": ProteinStructureResponse(uniprot_id="P04637", protein_name="p53", alphafold_url="https://alphafold.ebi.ac.uk/entry/P04637", pdb_id=None, description="Transcription factor; apoptosis inducer; genome guardian. Often mutated in cancers."),
     "P04626": ProteinStructureResponse(uniprot_id="P04626", protein_name="HER2/ErbB2", alphafold_url="https://alphafold.ebi.ac.uk/entry/P04626", pdb_id="3RCD", description="A receptor tyrosine kinase that promotes cell proliferation and opposes apoptosis."),
     "P60484": ProteinStructureResponse(uniprot_id="P60484", protein_name="PTEN", alphafold_url="https://alphafold.ebi.ac.uk/entry/P60484", pdb_id=None, description="Tumor suppressor that negatively regulates the PI3K-AKT signaling pathway."),

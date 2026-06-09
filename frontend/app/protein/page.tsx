@@ -20,7 +20,6 @@ const FEATURED_PROTEINS = [
   { id: "Q9BXM7", name: "PINK1",                   pdb: null,   disease: "Parkinson's" },
   { id: "O60260", name: "PARKIN",                  pdb: null,   disease: "Parkinson's" },
   { id: "P38398", name: "BRCA1",                   pdb: null,   disease: "Breast Cancer" },
-  { id: "P51587", name: "BRCA2",                   pdb: null,   disease: "Breast Cancer" },
   { id: "P04637", name: "p53",                     pdb: null,   disease: "Breast Cancer" },
   { id: "P04626", name: "HER2 / ErbB2",             pdb: "1N8Z", disease: "Breast Cancer" },
   { id: "P60484", name: "PTEN",                    pdb: null,   disease: "Breast Cancer" },
@@ -218,6 +217,7 @@ function ProteinViewerContent() {
               </p>
               <form onSubmit={handleCustomSearch} style={{ display: "flex", gap: 6 }}>
                 <input
+                  suppressHydrationWarning
                   type="text"
                   value={customId}
                   onChange={(e) => setCustomId(e.target.value)}
@@ -232,6 +232,7 @@ function ProteinViewerContent() {
                   }}
                 />
                 <button
+                  suppressHydrationWarning
                   type="submit"
                   style={{
                     padding: "8px 12px", borderRadius: 8,
@@ -274,6 +275,7 @@ function ProteinViewerContent() {
                 const active = selectedId === p.id;
                 return (
                   <button
+                    suppressHydrationWarning
                     key={p.id}
                     onClick={() => setSelectedId(p.id)}
                     style={{

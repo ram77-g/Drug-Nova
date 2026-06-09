@@ -71,7 +71,7 @@ The platform is seeded with 5 associated genes and exactly 5 linked target prote
 |---------|--------------------------------|-------|
 | Alzheimer's Disease | APOE, APP, PSEN1, PSEN2, MAPT | 3 |
 | Parkinson's Disease | SNCA, LRRK2, PARK7, PINK1, PARKIN | 3 |
-| Breast Cancer | BRCA1, BRCA2, ERBB2, PTEN, TP53 | 2 |
+| Breast Cancer | BRCA1, ERBB2, PTEN, TP53 | 2 |
 | Type 2 Diabetes | INS, PPARG, IRS1, GLUT4, TCF7L2 | 2 |
 | COVID-19 | ACE2, TMPRSS2, IL6, STAT3, TNF | 2 |
 | Rheumatoid Arthritis | IL6, TNF, JAK1, TYK2, PTPN22 | 2 |

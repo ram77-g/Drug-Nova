@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Drug, AIExplanationResponse } from "@/types";
 import { getAIExplanation } from "@/lib/api";
@@ -20,37 +20,44 @@ export function AIExplanationPanel({
 }: AIExplanationPanelProps) {
   const [explanation, setExplanation] = useState<AIExplanationResponse | null>(null);
   const [loading, setLoading] = useState(false);
-  const [fetched, setFetched] = useState(false);
 
-  const fetchExplanation = async () => {
-    if (!drug || fetched) return;
+  useEffect(() => {
+    if (!drug) return;
+
+    let isMounted = true;
     setLoading(true);
-    try {
-      const data = await getAIExplanation({
-        disease_name: diseaseName,
-        drug_name: drug.name,
-        mechanism: drug.mechanism,
-        target_proteins: drug.target_proteins,
-        rationale: drug.rationale,
-      });
-      setExplanation(data);
-      setFetched(true);
-    } catch {
-      setExplanation({
-        explanation: "Unable to generate explanation. Please ensure the backend is running.",
-        pathways: [],
-        confidence: "Unknown",
-        disclaimer: "This is a research tool only.",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+    setExplanation(null);
 
-  // Auto-fetch on mount
-  if (drug && !fetched && !loading) {
+    const fetchExplanation = async () => {
+      try {
+        const data = await getAIExplanation({
+          disease_name: diseaseName,
+          drug_name: drug.name,
+          mechanism: drug.mechanism,
+          target_proteins: drug.target_proteins,
+          rationale: drug.rationale,
+        });
+        if (isMounted) setExplanation(data);
+      } catch {
+        if (isMounted) {
+          setExplanation({
+            explanation: "Unable to generate explanation. Please ensure the backend is running.",
+            pathways: [],
+            confidence: "Unknown",
+            disclaimer: "This is a research tool only.",
+          });
+        }
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
     fetchExplanation();
-  }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [drug, diseaseName]);
 
   return (
     <AnimatePresence>

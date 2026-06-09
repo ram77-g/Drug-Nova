@@ -25,6 +25,13 @@ export function ProteinViewer3D({ pdbId, uniprotId }: ProteinViewer3DProps) {
   const [errorMsg, setErrorMsg] = useState("");
   const [viewMode, setViewMode] = useState<"cartoon" | "surface" | "stick">("cartoon");
   const previousViewMode = useRef(viewMode);
+  
+  const [colorScheme, setColorScheme] = useState<"default" | "bfactor" | "hydrophobicity">("default");
+  const previousColorScheme = useRef(colorScheme);
+  
+  const [autoRotate, setAutoRotate] = useState(false);
+  const [showBindingSite, setShowBindingSite] = useState(false);
+  const previousShowBindingSite = useRef(showBindingSite);
 
   useEffect(() => {
     let cancelled = false;
@@ -117,27 +124,40 @@ export function ProteinViewer3D({ pdbId, uniprotId }: ProteinViewer3DProps) {
           return;
         }
 
-        // Cartoon representation with cyan/violet coloring
+        let cs = colorScheme === "default" ? "residueindex" : colorScheme;
+        if (viewMode === "surface" && colorScheme === "default") cs = "electrostatic";
+        if (viewMode === "stick" && colorScheme === "default") cs = "element";
+
         if (viewMode === "cartoon") {
           component.addRepresentation("cartoon", {
-            colorScheme: "residueindex",
-            colorScale: "RdYlBu",
+            colorScheme: cs,
+            ...(cs === "residueindex" ? { colorScale: "RdYlBu" } : {}),
             roughness: 0.5,
             metalness: 0.1,
           });
         } else if (viewMode === "surface") {
-          // Surface representation
           component.addRepresentation("surface", {
             opacity: 0.8,
-            colorScheme: "electrostatic",
+            colorScheme: cs,
           });
         } else {
           component.addRepresentation("ball+stick", {
-            colorScheme: "element",
+            colorScheme: cs,
+          });
+        }
+
+        if (showBindingSite) {
+          component.addRepresentation("spacefill", {
+            sele: "hydrophobic and sidechainAttached",
+            color: "#f43f5e", // Rose-500
+            opacity: 0.9,
+            roughness: 0.2,
+            metalness: 0.5,
           });
         }
 
         component.autoView();
+        if (autoRotate) stage.setSpin(true);
         compRef.current = component;
         setStatus("ready");
 
@@ -164,28 +184,51 @@ export function ProteinViewer3D({ pdbId, uniprotId }: ProteinViewer3DProps) {
   }, [pdbId, uniprotId]);
 
   useEffect(() => {
-    if (compRef.current && status === "ready" && previousViewMode.current !== viewMode) {
+    if (compRef.current && status === "ready" && (previousViewMode.current !== viewMode || previousColorScheme.current !== colorScheme || previousShowBindingSite.current !== showBindingSite)) {
       previousViewMode.current = viewMode;
+      previousColorScheme.current = colorScheme;
+      previousShowBindingSite.current = showBindingSite;
       compRef.current.removeAllRepresentations();
+
+      let cs = colorScheme === "default" ? "residueindex" : colorScheme;
+      if (viewMode === "surface" && colorScheme === "default") cs = "electrostatic";
+      if (viewMode === "stick" && colorScheme === "default") cs = "element";
+
       if (viewMode === "cartoon") {
         compRef.current.addRepresentation("cartoon", {
-          colorScheme: "residueindex",
-          colorScale: "RdYlBu",
+          colorScheme: cs,
+          ...(cs === "residueindex" ? { colorScale: "RdYlBu" } : {}),
           roughness: 0.5,
           metalness: 0.1,
         });
       } else if (viewMode === "surface") {
         compRef.current.addRepresentation("surface", {
           opacity: 0.8,
-          colorScheme: "electrostatic",
+          colorScheme: cs,
         });
       } else {
         compRef.current.addRepresentation("ball+stick", {
-          colorScheme: "element",
+          colorScheme: cs,
+        });
+      }
+
+      if (showBindingSite) {
+        compRef.current.addRepresentation("spacefill", {
+          sele: "hydrophobic and sidechainAttached",
+          color: "#f43f5e",
+          opacity: 0.9,
+          roughness: 0.2,
+          metalness: 0.5,
         });
       }
     }
-  }, [viewMode, status]);
+  }, [viewMode, colorScheme, showBindingSite, status]);
+
+  useEffect(() => {
+    if (stageRef.current && status === "ready") {
+      stageRef.current.setSpin(autoRotate);
+    }
+  }, [autoRotate, status]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -318,66 +361,130 @@ export function ProteinViewer3D({ pdbId, uniprotId }: ProteinViewer3DProps) {
       `}</style>
       </div>
 
-      {/* View mode toggle button */}
-      <div style={{ display: "flex", justifyContent: "center" }}>
-        <div
-          style={{
-            display: "flex",
-            background: "rgba(13,20,37,0.8)",
-            border: "1px solid rgba(30,45,74,0.6)",
-            borderRadius: 8,
-            overflow: "hidden",
-          }}
-        >
-          <button
-            onClick={() => setViewMode("cartoon")}
+      {/* Controls */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, alignItems: "center" }}>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", justifyContent: "center" }}>
+          
+          {/* View mode toggle */}
+          <div
             style={{
-              padding: "8px 16px",
-              fontSize: 13,
-              fontFamily: "Inter, sans-serif",
-              fontWeight: 500,
-              color: viewMode === "cartoon" ? "#00d4ff" : "#6b7fa3",
-              background: viewMode === "cartoon" ? "rgba(0,212,255,0.1)" : "transparent",
-              border: "none",
-              cursor: "pointer",
-              transition: "all 0.2s",
+              display: "flex",
+              background: "rgba(13,20,37,0.8)",
+              border: "1px solid rgba(30,45,74,0.6)",
+              borderRadius: 8,
+              overflow: "hidden",
             }}
           >
-            Cartoon
+            <button
+              suppressHydrationWarning
+              onClick={() => setViewMode("cartoon")}
+              style={{
+                padding: "8px 16px", fontSize: 13, fontWeight: 500, border: "none", cursor: "pointer", transition: "all 0.2s",
+                color: viewMode === "cartoon" ? "#00d4ff" : "#6b7fa3",
+                background: viewMode === "cartoon" ? "rgba(0,212,255,0.1)" : "transparent",
+              }}
+            >
+              Cartoon
+            </button>
+            <button
+              suppressHydrationWarning
+              onClick={() => setViewMode("surface")}
+              style={{
+                padding: "8px 16px", fontSize: 13, fontWeight: 500, border: "none", borderLeft: "1px solid rgba(30,45,74,0.6)", cursor: "pointer", transition: "all 0.2s",
+                color: viewMode === "surface" ? "#00d4ff" : "#6b7fa3",
+                background: viewMode === "surface" ? "rgba(0,212,255,0.1)" : "transparent",
+              }}
+            >
+              Surface
+            </button>
+            <button
+              suppressHydrationWarning
+              onClick={() => setViewMode("stick")}
+              style={{
+                padding: "8px 16px", fontSize: 13, fontWeight: 500, border: "none", borderLeft: "1px solid rgba(30,45,74,0.6)", cursor: "pointer", transition: "all 0.2s",
+                color: viewMode === "stick" ? "#00d4ff" : "#6b7fa3",
+                background: viewMode === "stick" ? "rgba(0,212,255,0.1)" : "transparent",
+              }}
+            >
+              Ball & Stick
+            </button>
+          </div>
+
+          {/* Color scheme toggle */}
+          <div
+            style={{
+              display: "flex",
+              background: "rgba(13,20,37,0.8)",
+              border: "1px solid rgba(30,45,74,0.6)",
+              borderRadius: 8,
+              overflow: "hidden",
+            }}
+          >
+            <button
+              suppressHydrationWarning
+              onClick={() => setColorScheme("default")}
+              style={{
+                padding: "8px 16px", fontSize: 13, fontWeight: 500, border: "none", cursor: "pointer", transition: "all 0.2s",
+                color: colorScheme === "default" ? "#a855f7" : "#6b7fa3",
+                background: colorScheme === "default" ? "rgba(168,85,247,0.1)" : "transparent",
+              }}
+            >
+              Default Colors
+            </button>
+            <button
+              suppressHydrationWarning
+              onClick={() => setColorScheme("bfactor")}
+              style={{
+                padding: "8px 16px", fontSize: 13, fontWeight: 500, border: "none", borderLeft: "1px solid rgba(30,45,74,0.6)", cursor: "pointer", transition: "all 0.2s",
+                color: colorScheme === "bfactor" ? "#a855f7" : "#6b7fa3",
+                background: colorScheme === "bfactor" ? "rgba(168,85,247,0.1)" : "transparent",
+              }}
+            >
+              pLDDT Confidence
+            </button>
+            <button
+              suppressHydrationWarning
+              onClick={() => setColorScheme("hydrophobicity")}
+              style={{
+                padding: "8px 16px", fontSize: 13, fontWeight: 500, border: "none", borderLeft: "1px solid rgba(30,45,74,0.6)", cursor: "pointer", transition: "all 0.2s",
+                color: colorScheme === "hydrophobicity" ? "#a855f7" : "#6b7fa3",
+                background: colorScheme === "hydrophobicity" ? "rgba(168,85,247,0.1)" : "transparent",
+              }}
+            >
+              Hydrophobicity
+            </button>
+          </div>
+
+          {/* Predicted Pocket Toggle */}
+          <button
+            onClick={() => setShowBindingSite(!showBindingSite)}
+            style={{
+              padding: "8px 16px", fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "all 0.2s",
+              border: "1px solid",
+              borderColor: showBindingSite ? "rgba(244,63,94,0.4)" : "rgba(30,45,74,0.6)",
+              background: showBindingSite ? "rgba(244,63,94,0.1)" : "rgba(13,20,37,0.8)",
+              color: showBindingSite ? "#f43f5e" : "#6b7fa3",
+              borderRadius: 8,
+              display: "flex", alignItems: "center", gap: 6,
+            }}
+          >
+            {showBindingSite ? "⏺ Pocket On" : "⚬ Show Pocket"}
           </button>
+
+          {/* Auto rotate toggle */}
           <button
-            onClick={() => setViewMode("surface")}
+            onClick={() => setAutoRotate(!autoRotate)}
             style={{
-              padding: "8px 16px",
-              fontSize: 13,
-              fontFamily: "Inter, sans-serif",
-              fontWeight: 500,
-              color: viewMode === "surface" ? "#00d4ff" : "#6b7fa3",
-              background: viewMode === "surface" ? "rgba(0,212,255,0.1)" : "transparent",
-              border: "none",
-              borderLeft: "1px solid rgba(30,45,74,0.6)",
-              cursor: "pointer",
-              transition: "all 0.2s",
+              padding: "8px 16px", fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "all 0.2s",
+              border: "1px solid",
+              borderColor: autoRotate ? "rgba(34,197,94,0.4)" : "rgba(30,45,74,0.6)",
+              background: autoRotate ? "rgba(34,197,94,0.1)" : "rgba(13,20,37,0.8)",
+              color: autoRotate ? "#22c55e" : "#6b7fa3",
+              borderRadius: 8,
+              display: "flex", alignItems: "center", gap: 6,
             }}
           >
-            Surface
-          </button>
-          <button
-            onClick={() => setViewMode("stick")}
-            style={{
-              padding: "8px 16px",
-              fontSize: 13,
-              fontFamily: "Inter, sans-serif",
-              fontWeight: 500,
-              color: viewMode === "stick" ? "#00d4ff" : "#6b7fa3",
-              background: viewMode === "stick" ? "rgba(0,212,255,0.1)" : "transparent",
-              border: "none",
-              borderLeft: "1px solid rgba(30,45,74,0.6)",
-              cursor: "pointer",
-              transition: "all 0.2s",
-            }}
-          >
-            Ball & Stick
+            {autoRotate ? "⏹ Stop Spin" : "⟳ Auto Spin"}
           </button>
         </div>
       </div>

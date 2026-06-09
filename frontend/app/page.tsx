@@ -1,10 +1,12 @@
 import { HeroSection } from "@/components/landing/HeroSection";
 import { FeaturesSection } from "@/components/landing/FeaturesSection";
 import { HowItWorks } from "@/components/landing/HowItWorks";
+import { SplashWrapper } from "@/components/landing/SplashWrapper";
 import Link from "next/link";
 
 export default function HomePage() {
   return (
+    <SplashWrapper>
     <div style={{ background: "#050810" }}>
       <HeroSection />
 
@@ -121,5 +123,6 @@ export default function HomePage() {
         </div>
       </footer>
     </div>
+    </SplashWrapper>
   );
 }

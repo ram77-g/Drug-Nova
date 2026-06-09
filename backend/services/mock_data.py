@@ -92,14 +92,13 @@ GENES_BY_DISEASE: dict[str, list[Gene]] = {
     ],
     "breast cancer": [
         Gene(id="ENSG00000012048", symbol="BRCA1", name="Breast Cancer Gene 1", chromosome="17q21.31", relevance_score=0.98),
-        Gene(id="ENSG00000139618", symbol="BRCA2", name="Breast Cancer Gene 2", chromosome="13q12.3", relevance_score=0.96),
         Gene(id="ENSG00000141736", symbol="ERBB2", name="Erb-B2 Receptor Tyrosine Kinase 2", chromosome="17q12", relevance_score=0.93),
         Gene(id="ENSG00000171862", symbol="PTEN", name="Phosphatase and Tensin Homolog", chromosome="10q23.31", relevance_score=0.89),
-        Gene(id="ENSG00000012048", symbol="TP53", name="Tumor Protein P53", chromosome="17p13.1", relevance_score=0.87),
+        Gene(id="ENSG00000141510", symbol="TP53", name="Tumor Protein P53", chromosome="17p13.1", relevance_score=0.87),
     ],
     "type 2 diabetes": [
         Gene(id="ENSG00000254647", symbol="INS", name="Insulin", chromosome="11p15.5", relevance_score=0.97),
-        Gene(id="ENSG00000254647", symbol="PPARG", name="Peroxisome Proliferator Activated Receptor Gamma", chromosome="3p25.2", relevance_score=0.93),
+        Gene(id="ENSG00000132170", symbol="PPARG", name="Peroxisome Proliferator Activated Receptor Gamma", chromosome="3p25.2", relevance_score=0.93),
         Gene(id="ENSG00000169047", symbol="IRS1", name="Insulin Receptor Substrate 1", chromosome="2q36.3", relevance_score=0.89),
         Gene(id="ENSG00000180401", symbol="GLUT4", name="Glucose Transporter Type 4", chromosome="17p13", relevance_score=0.86),
         Gene(id="ENSG00000141736", symbol="TCF7L2", name="Transcription Factor 7 Like 2", chromosome="10q25.2", relevance_score=0.84),
@@ -140,7 +139,6 @@ PROTEINS_BY_DISEASE: dict[str, list[Protein]] = {
     ],
     "breast cancer": [
         Protein(id="P38398", name="BRCA1", uniprot_id="P38398", function="DNA repair, transcription regulation, tumor suppression", structure_available=True),
-        Protein(id="P51587", name="BRCA2", uniprot_id="P51587", function="DNA repair via homologous recombination", structure_available=False),
         Protein(id="P04637", name="p53", uniprot_id="P04637", function="Transcription factor; apoptosis inducer; genome guardian", structure_available=True),
         Protein(id="P04626", name="HER2/ErbB2", uniprot_id="P04626", function="Receptor tyrosine kinase; cell proliferation signaling", structure_available=True),
         Protein(id="P60484", name="PTEN", uniprot_id="P60484", function="Tumor suppressor; antagonizes PI3K-AKT signaling", structure_available=True),
