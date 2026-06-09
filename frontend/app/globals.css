@@ -1,0 +1,124 @@
+@import "tailwindcss";
+
+/* ─────────────────────────────────────────────────────────
+   BASE RESET
+───────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  height: 100%;
+}
+
+body {
+  background-color: #050810;
+  color: #c8d6f0;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* ─────────────────────────────────────────────────────────
+   SCROLLBAR
+───────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #080d1a; }
+::-webkit-scrollbar-thumb { background: #1e2d4a; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0, 212, 255, 0.3); }
+
+/* ─────────────────────────────────────────────────────────
+   LAYOUT UTILITIES
+───────────────────────────────────────────────────────── */
+.container-xl {
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.section-pad {
+  padding-top: 6rem;
+  padding-bottom: 6rem;
+}
+
+/* ─────────────────────────────────────────────────────────
+   GLASS
+───────────────────────────────────────────────────────── */
+.glass {
+  background: rgba(13, 20, 37, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(30, 45, 74, 0.6);
+}
+
+.glass-nav {
+  background: rgba(5, 8, 16, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(30, 45, 74, 0.5);
+}
+
+/* ─────────────────────────────────────────────────────────
+   GRID BACKGROUND
+───────────────────────────────────────────────────────── */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* ─────────────────────────────────────────────────────────
+   GLOW TEXT
+───────────────────────────────────────────────────────── */
+.text-glow-cyan {
+  text-shadow: 0 0 24px rgba(0, 212, 255, 0.5), 0 0 48px rgba(0, 212, 255, 0.2);
+}
+
+/* ─────────────────────────────────────────────────────────
+   SCORE BAR ANIMATION
+───────────────────────────────────────────────────────── */
+@keyframes scoreBarFill {
+  from { width: 0%; }
+  to   { width: var(--score-width, 0%); }
+}
+.score-bar-fill {
+  animation: scoreBarFill 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ─────────────────────────────────────────────────────────
+   REACT FLOW
+───────────────────────────────────────────────────────── */
+.react-flow__background { background: transparent !important; }
+
+@keyframes dashFlow {
+  to { stroke-dashoffset: -16; }
+}
+.react-flow__edge-path {
+  stroke-dasharray: 5 3;
+  animation: dashFlow 1.5s linear infinite;
+}
+
+/* ─────────────────────────────────────────────────────────
+   GRADIENT TEXT HELPER
+───────────────────────────────────────────────────────── */
+.grad-cyan-violet {
+  background: linear-gradient(135deg, #00d4ff 0%, #a855f7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.grad-violet-cyan {
+  background: linear-gradient(135deg, #7c3aed 0%, #00d4ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
