@@ -128,32 +128,42 @@ PROTEINS_BY_DISEASE: dict[str, list[Protein]] = {
         Protein(id="P02649", name="Apolipoprotein E", uniprot_id="P02649", function="Lipid transport, Aβ clearance mediator", structure_available=True),
         Protein(id="P05067", name="Amyloid Precursor Protein", uniprot_id="P05067", function="Cell adhesion, synaptogenesis; cleaved to Aβ peptides", structure_available=True),
         Protein(id="P49768", name="Presenilin-1", uniprot_id="P49768", function="Gamma-secretase catalytic subunit; regulates Notch/Aβ42 production", structure_available=True),
+        Protein(id="P49810", name="Presenilin-2", uniprot_id="P49810", function="Gamma-secretase catalytic subunit", structure_available=True),
         Protein(id="P10636", name="Tau protein", uniprot_id="P10636", function="Microtubule stabilization; hyperphosphorylated in tangles", structure_available=False),
     ],
     "parkinson": [
         Protein(id="P37840", name="Alpha-synuclein", uniprot_id="P37840", function="Synaptic vesicle regulation; aggregates into Lewy bodies", structure_available=True),
         Protein(id="Q5S007", name="LRRK2", uniprot_id="Q5S007", function="Serine/threonine kinase; regulates vesicle trafficking", structure_available=True),
         Protein(id="Q99497", name="DJ-1", uniprot_id="Q99497", function="Oxidative stress sensor and neuroprotector", structure_available=True),
+        Protein(id="Q9BXM7", name="PINK1", uniprot_id="Q9BXM7", function="Mitochondrial quality control kinase", structure_available=True),
+        Protein(id="O60260", name="PARKIN", uniprot_id="O60260", function="E3 ubiquitin ligase targeting damaged mitochondria", structure_available=True),
     ],
     "breast cancer": [
         Protein(id="P38398", name="BRCA1", uniprot_id="P38398", function="DNA repair, transcription regulation, tumor suppression", structure_available=True),
+        Protein(id="P51587", name="BRCA2", uniprot_id="P51587", function="DNA repair via homologous recombination", structure_available=False),
         Protein(id="P04637", name="p53", uniprot_id="P04637", function="Transcription factor; apoptosis inducer; genome guardian", structure_available=True),
         Protein(id="P04626", name="HER2/ErbB2", uniprot_id="P04626", function="Receptor tyrosine kinase; cell proliferation signaling", structure_available=True),
+        Protein(id="P60484", name="PTEN", uniprot_id="P60484", function="Tumor suppressor; antagonizes PI3K-AKT signaling", structure_available=True),
     ],
     "type 2 diabetes": [
         Protein(id="P01308", name="Insulin", uniprot_id="P01308", function="Glucose homeostasis hormone; anabolic regulator", structure_available=True),
         Protein(id="P37231", name="PPARG", uniprot_id="P37231", function="Nuclear receptor; adipogenesis and insulin sensitivity regulator", structure_available=True),
-        Protein(id="P15941", name="Mucin-1", uniprot_id="P15941", function="Cell surface glycoprotein implicated in insulin resistance", structure_available=False),
+        Protein(id="P35568", name="IRS1", uniprot_id="P35568", function="Insulin receptor substrate 1; metabolic signaling", structure_available=True),
+        Protein(id="P14672", name="GLUT4", uniprot_id="P14672", function="Insulin-responsive glucose transporter", structure_available=True),
+        Protein(id="Q9NQB0", name="TCF7L2", uniprot_id="Q9NQB0", function="Transcription factor involved in blood glucose homeostasis", structure_available=True),
     ],
     "covid-19": [
         Protein(id="Q9BYF1", name="ACE2 receptor", uniprot_id="Q9BYF1", function="Viral entry receptor for SARS-CoV-2 spike protein", structure_available=True),
         Protein(id="O15393", name="TMPRSS2", uniprot_id="O15393", function="Serine protease priming spike protein for cell entry", structure_available=True),
         Protein(id="P05231", name="Interleukin-6", uniprot_id="P05231", function="Cytokine driving cytokine storm in severe COVID-19", structure_available=True),
+        Protein(id="P40763", name="STAT3", uniprot_id="P40763", function="Signal transducer in hyperinflammatory cascade", structure_available=True),
     ],
     "rheumatoid arthritis": [
         Protein(id="P05231", name="Interleukin-6", uniprot_id="P05231", function="Pro-inflammatory cytokine mediating joint destruction", structure_available=True),
         Protein(id="P01375", name="TNF-alpha", uniprot_id="P01375", function="Master inflammatory cytokine in RA pathogenesis", structure_available=True),
         Protein(id="P23458", name="JAK1", uniprot_id="P23458", function="Signal transduction kinase in JAK-STAT inflammatory cascade", structure_available=True),
+        Protein(id="P29597", name="TYK2", uniprot_id="P29597", function="Non-receptor tyrosine-protein kinase", structure_available=True),
+        Protein(id="Q9Y2R2", name="PTPN22", uniprot_id="Q9Y2R2", function="Tyrosine-protein phosphatase non-receptor type 22", structure_available=True),
     ],
 }
 

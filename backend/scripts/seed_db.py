@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from services.mock_data import DISEASE_CATALOG, GENES_BY_DISEASE, PROTEINS_BY_DISEASE, DRUGS_BY_DISEASE
-from routers.protein import PROTEIN_STRUCTURES
+from protein_structures_data import PROTEIN_STRUCTURES
 
 load_dotenv()
 
