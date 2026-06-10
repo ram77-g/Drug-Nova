@@ -2,7 +2,8 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -12,6 +13,19 @@ const NAV_LINKS = [
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Check auth status on load and route changes
+    setIsLoggedIn(!!localStorage.getItem("token"));
+  }, [pathname]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
+    router.push("/");
+  };
 
   return (
     <motion.header
@@ -71,21 +85,76 @@ export function Navbar() {
           })}
         </nav>
 
-        {/* Status */}
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <span style={{ position: "relative", display: "inline-flex", width: 8, height: 8 }}>
-            <span
-              style={{
-                position: "absolute", inset: 0, borderRadius: "50%",
-                background: "#22c55e", opacity: 0.6,
-                animation: "ping 1.5s cubic-bezier(0,0,0.2,1) infinite",
-              }}
-            />
-            <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#22c55e", display: "block" }} />
-          </span>
-          <span style={{ fontSize: "12px", color: "#1ebeebff", fontFamily: "monospace" }}>
-            QUAD Agents
-          </span>
+        {/* Status / Auth */}
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginRight: "8px" }}>
+            <span style={{ position: "relative", display: "inline-flex", width: 8, height: 8 }}>
+              <span
+                style={{
+                  position: "absolute", inset: 0, borderRadius: "50%",
+                  background: "#22c55e", opacity: 0.6,
+                  animation: "ping 1.5s cubic-bezier(0,0,0.2,1) infinite",
+                }}
+              />
+              <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#22c55e", display: "block" }} />
+            </span>
+            <span style={{ fontSize: "12px", color: "#1ebeebff", fontFamily: "monospace" }}>
+              QUAD Agents
+            </span>
+          </div>
+
+          <div style={{ height: "24px", width: "1px", background: "rgba(255,255,255,0.1)" }}></div>
+
+          {isLoggedIn ? (
+            <>
+              <Link
+                href="/profile"
+                style={{
+                  padding: "6px 16px", borderRadius: "8px", fontSize: "13.5px",
+                  fontWeight: 500, color: "#ffffff", textDecoration: "none",
+                  background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.05)",
+                  transition: "all 0.2s",
+                }}
+              >
+                Profile
+              </Link>
+              <button
+                onClick={handleLogout}
+                style={{
+                  padding: "6px 16px", borderRadius: "8px", fontSize: "13.5px",
+                  fontWeight: 500, color: "#f87171", cursor: "pointer",
+                  background: "rgba(248,113,113,0.1)", border: "1px solid rgba(248,113,113,0.2)",
+                  transition: "all 0.2s",
+                }}
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                style={{
+                  padding: "6px 16px", borderRadius: "8px", fontSize: "13.5px",
+                  fontWeight: 500, color: "#c8d6f0", textDecoration: "none",
+                  transition: "all 0.2s",
+                }}
+              >
+                Login
+              </Link>
+              <Link
+                href="/signup"
+                style={{
+                  padding: "6px 16px", borderRadius: "8px", fontSize: "13.5px",
+                  fontWeight: 500, color: "#00d4ff", textDecoration: "none",
+                  background: "rgba(0,212,255,0.1)", border: "1px solid rgba(0,212,255,0.3)",
+                  transition: "all 0.2s",
+                }}
+              >
+                Sign Up
+              </Link>
+            </>
+          )}
         </div>
       </div>
 

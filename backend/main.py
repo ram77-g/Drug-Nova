@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-from routers import disease, drugs, graph, ai_explain, protein
+from routers import disease, drugs, graph, ai_explain, protein, auth
 
 load_dotenv()
 
@@ -40,6 +40,7 @@ app.include_router(drugs.router, prefix="/api/drugs", tags=["Drugs"])
 app.include_router(graph.router, prefix="/api/graph", tags=["Knowledge Graph"])
 app.include_router(ai_explain.router, prefix="/api/ai", tags=["AI Explanation"])
 app.include_router(protein.router, prefix="/api/protein", tags=["Protein"])
+app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
 
 
 @app.get("/")
