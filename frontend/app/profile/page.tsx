@@ -35,6 +35,7 @@ export default function ProfilePage() {
         setProfile(data);
       } catch (err) {
         localStorage.removeItem("token");
+        document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         router.push("/login");
       } finally {
         setLoading(false);

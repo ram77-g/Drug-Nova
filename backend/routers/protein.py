@@ -1,14 +1,18 @@
 """
 Protein structure router — returns AlphaFold structure URLs and metadata from MongoDB.
 """
-from fastapi import APIRouter, HTTPException, Path
+from fastapi import APIRouter, HTTPException, Path, Depends
 from models.schemas import ProteinStructureResponse
 from db.mongodb import get_db
+from routers.auth import get_current_user
 
 router = APIRouter()
 
 @router.get("/{uniprot_id}", response_model=ProteinStructureResponse)
-async def get_protein_structure(uniprot_id: str = Path(..., description="UniProt protein ID")):
+async def get_protein_structure(
+    uniprot_id: str = Path(..., description="UniProt protein ID"),
+    current_user: dict = Depends(get_current_user)
+):
     """Return protein structure metadata and AlphaFold URL from MongoDB."""
     db = get_db()
     uniprot_id_upper = uniprot_id.upper()
@@ -29,7 +33,7 @@ async def get_protein_structure(uniprot_id: str = Path(..., description="UniProt
     return ProteinStructureResponse(**doc)
 
 @router.get("/")
-async def list_proteins():
+async def list_proteins(current_user: dict = Depends(get_current_user)):
     """Return all available protein structures from MongoDB."""
     db = get_db()
     cursor = db.protein_structures.find({})

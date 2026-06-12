@@ -1,15 +1,19 @@
 """
 Disease router — search and retrieve disease info, genes, proteins, drugs from MongoDB.
 """
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from models.schemas import DiseaseSearchResponse, DiseaseInfo, Gene, Protein, Drug
 from db.mongodb import get_db
 from services.scoring import rank_drugs
+from routers.auth import get_current_user
 
 router = APIRouter()
 
 @router.get("/search", response_model=DiseaseSearchResponse)
-async def search(q: str = Query(..., description="Disease name to search")):
+async def search(
+    q: str = Query(..., description="Disease name to search"),
+    current_user: dict = Depends(get_current_user)
+):
     """Search for a disease and return full biomedical context using MongoDB."""
     db = get_db()
     
@@ -58,7 +62,10 @@ async def search(q: str = Query(..., description="Disease name to search")):
     )
 
 @router.get("/suggestions")
-async def suggestions(q: str = Query(..., description="Partial disease name")):
+async def suggestions(
+    q: str = Query(..., description="Partial disease name"),
+    current_user: dict = Depends(get_current_user)
+):
     """Return disease name suggestions for autocomplete from MongoDB."""
     db = get_db()
     q_lower = q.lower().strip()
@@ -69,7 +76,7 @@ async def suggestions(q: str = Query(..., description="Partial disease name")):
     return {"suggestions": matches}
 
 @router.get("/list")
-async def list_diseases():
+async def list_diseases(current_user: dict = Depends(get_current_user)):
     """Return all available diseases from MongoDB."""
     db = get_db()
     cursor = db.diseases.find({})

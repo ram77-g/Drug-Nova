@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { GoogleLogin } from '@react-oauth/google';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,6 +15,12 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    if (!formData.email.toLowerCase().endsWith("@gmail.com")) {
+      setError("Please use a valid @gmail.com email address");
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -27,6 +34,30 @@ export default function LoginPage() {
       if (!res.ok) throw new Error(data.detail || "Failed to log in");
 
       localStorage.setItem("token", data.access_token);
+      document.cookie = `token=${data.access_token}; path=/; max-age=604800`;
+      router.push("/");
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+    setLoading(true);
+    setError("");
+    try {
+      const res = await fetch("http://localhost:8000/api/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential: credentialResponse.credential }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Google authentication failed");
+
+      localStorage.setItem("token", data.access_token);
+      document.cookie = `token=${data.access_token}; path=/; max-age=604800`;
       router.push("/");
     } catch (err: any) {
       setError(err.message);
@@ -87,6 +118,11 @@ export default function LoginPage() {
             />
           </div>
 
+
+          <div style={{ textAlign: "right", marginTop: "-8px" }}>
+            <Link href="/forgot-password" style={{ color: "#00d4ff", fontSize: 12, textDecoration: "none" }}>Forgot Password?</Link>
+          </div>
+
           <button
             type="submit"
             disabled={loading}
@@ -99,6 +135,15 @@ export default function LoginPage() {
           >
             {loading ? "Logging in..." : "Log In"}
           </button>
+          
+          <div style={{ textAlign: "center", margin: "8px 0", color: "#6b7fa3", fontSize: 13 }}>OR</div>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => setError("Google Login Failed")}
+              theme="filled_black"
+            />
+          </div>
         </form>
 
         <p style={{ marginTop: 24, textAlign: "center", fontSize: 13, color: "#6b7fa3" }}>

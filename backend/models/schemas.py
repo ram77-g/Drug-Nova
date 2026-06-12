@@ -1,7 +1,7 @@
 """
 Pydantic models for Drug Nova API request/response schemas.
 """
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional
 
 
@@ -71,11 +71,11 @@ class KnowledgeGraphResponse(BaseModel):
 
 
 class AIExplanationRequest(BaseModel):
-    disease_name: str
-    drug_name: str
-    mechanism: str
-    target_proteins: List[str]
-    rationale: str
+    disease_name: str = Field(..., max_length=100)
+    drug_name: str = Field(..., max_length=100)
+    mechanism: str = Field(..., max_length=500)
+    target_proteins: List[str] = Field(..., max_length=50)
+    rationale: str = Field(..., max_length=2000)
 
 
 class AIExplanationResponse(BaseModel):

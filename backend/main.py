@@ -5,9 +5,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-from routers import disease, drugs, graph, ai_explain, protein, auth
-
 load_dotenv()
+
+from routers import disease, drugs, graph, ai_explain, protein, auth
 
 from contextlib import asynccontextmanager
 from db.mongodb import connect_to_mongo, close_mongo_connection

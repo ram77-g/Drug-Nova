@@ -1,14 +1,18 @@
 """
 Knowledge Graph router — generates nodes and edges for visualization from MongoDB.
 """
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from models.schemas import KnowledgeGraphResponse, GraphNode, GraphEdge
 from db.mongodb import get_db
+from routers.auth import get_current_user
 
 router = APIRouter()
 
 @router.get("/", response_model=KnowledgeGraphResponse)
-async def get_graph(disease: str = Query(..., description="Disease name")):
+async def get_graph(
+    disease: str = Query(..., description="Disease name"),
+    current_user: dict = Depends(get_current_user)
+):
     """Build knowledge graph data for disease → gene → protein → drug relationships from MongoDB."""
     db = get_db()
     disease_lower = disease.lower().strip()

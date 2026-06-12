@@ -1,13 +1,17 @@
 """
 Drugs router — retrieve drug details and repurposing candidates from MongoDB.
 """
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 from db.mongodb import get_db
+from routers.auth import get_current_user
 
 router = APIRouter()
 
 @router.get("/by-disease")
-async def drugs_by_disease(disease: str = Query(...)):
+async def drugs_by_disease(
+    disease: str = Query(...),
+    current_user: dict = Depends(get_current_user)
+):
     """Return repurposing candidates for a disease from MongoDB."""
     db = get_db()
     disease_lower = disease.lower().strip()
@@ -34,7 +38,10 @@ async def drugs_by_disease(disease: str = Query(...)):
     return {"disease": disease, "count": len(drugs), "drugs": drugs}
 
 @router.get("/{drug_id}")
-async def drug_detail(drug_id: str):
+async def drug_detail(
+    drug_id: str,
+    current_user: dict = Depends(get_current_user)
+):
     """Return details for a specific drug ID from MongoDB."""
     db = get_db()
     drug_doc = await db.drugs.find_one({"id": drug_id})

@@ -18,11 +18,17 @@ export function Navbar() {
 
   useEffect(() => {
     // Check auth status on load and route changes
-    setIsLoggedIn(!!localStorage.getItem("token"));
+    const token = localStorage.getItem("token");
+    if (!token) {
+      // Prevent ghost cookie desync by clearing cookie if localStorage is empty
+      document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    }
+    setIsLoggedIn(!!token);
   }, [pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     setIsLoggedIn(false);
     router.push("/");
   };

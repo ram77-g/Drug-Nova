@@ -3,8 +3,9 @@ AI Explanation router.
 Uses OpenAI (if API key set) with intelligent mock fallback.
 """
 import os
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from models.schemas import AIExplanationRequest, AIExplanationResponse
+from routers.auth import get_current_user
 
 router = APIRouter()
 
@@ -102,7 +103,10 @@ Format your response as JSON with keys: explanation, pathways (array), confidenc
 
 
 @router.post("/explain", response_model=AIExplanationResponse)
-async def explain(req: AIExplanationRequest):
+async def explain(
+    req: AIExplanationRequest,
+    current_user: dict = Depends(get_current_user)
+):
     """Generate AI explanation for a drug repurposing candidate."""
     if os.getenv("OPENAI_API_KEY"):
         return await _openai_explanation(req)

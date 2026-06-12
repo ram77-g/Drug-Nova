@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   keywords: ["drug repurposing", "bioinformatics", "AI", "drug discovery", "proteomics"],
 };
 
+import { GoogleOAuthProvider } from '@react-oauth/google';
+
 export default function RootLayout({
   children,
 }: {
@@ -25,8 +27,10 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-[#050810] text-[#c8d6f0] antialiased">
-        <Navbar />
-        <main className="pt-14">{children}</main>
+        <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "PLACEHOLDER_CLIENT_ID"}>
+          <Navbar />
+          <main className="pt-14">{children}</main>
+        </GoogleOAuthProvider>
       </body>
     </html>
   );
