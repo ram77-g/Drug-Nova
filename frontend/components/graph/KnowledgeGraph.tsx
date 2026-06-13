@@ -167,7 +167,7 @@ export function KnowledgeGraph({ diseaseName }: KnowledgeGraphProps) {
   if (error) return <p className="text-red-400 text-sm text-center py-8">{error}</p>;
 
   return (
-    <div className="relative w-full rounded-xl overflow-hidden border border-[#1e2d4a]/60 bg-[#050810]">
+    <div className="relative w-full h-[500px] rounded-xl overflow-hidden border border-[#1e2d4a]/60 bg-[#050810]">
       {/* Stats bar */}
       {graphData && (
         <div className="absolute top-3 left-3 z-10 flex gap-2 flex-wrap">

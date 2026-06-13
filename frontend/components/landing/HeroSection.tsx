@@ -77,13 +77,6 @@ export function HeroSection() {
             marginBottom: 28,
           }}
         >
-          <span
-            style={{
-              width: 6, height: 6, borderRadius: "50%",
-              background: "#00d4ff",
-              animation: "blink 2s ease-in-out infinite",
-            }}
-          />
           AI-POWERED DRUG REPURPOSING PLATFORM
         </motion.div>
 

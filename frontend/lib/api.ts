@@ -77,3 +77,25 @@ export async function getProteinStructure(
   );
   return data;
 }
+
+export async function listProteins(): Promise<
+  Array<{ uniprot_id: string; name: string; pdb_id: string | null }>
+> {
+  const { data } = await client.get("/api/protein/");
+  return data.proteins;
+}
+
+export async function getSharedDrugs(proteinA: string, proteinB: string): Promise<any[]> {
+  const { data } = await client.get(`/api/drugs/shared?protein_a=${proteinA}&protein_b=${proteinB}`);
+  return data.shared_drugs;
+}
+
+export async function getProteinAlignment(proteinA: string, proteinB: string): Promise<any> {
+  const { data } = await client.get(`/api/protein/align?uniprot_a=${proteinA}&uniprot_b=${proteinB}`);
+  return data;
+}
+
+export async function getBindingSites(uniprotId: string): Promise<string> {
+  const { data } = await client.get(`/api/protein/${uniprotId}/binding_sites`);
+  return data.residues;
+}

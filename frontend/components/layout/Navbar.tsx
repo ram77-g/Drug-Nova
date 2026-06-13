@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/search", label: "Search" },
   { href: "/protein", label: "Proteins" },
+  { href: "/compare", label: "Compare" },
 ];
 
 export function Navbar() {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Drug } from "@/types";
 import { ScoreBar } from "@/components/ui/ScoreBar";
@@ -24,6 +24,34 @@ function approvalBadgeVariant(status: string): "green" | "cyan" | "yellow" | "re
 
 export function DrugCard({ drug, rank, onExplain }: DrugCardProps) {
   const [expanded, setExpanded] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [liveData, setLiveData] = useState<{ chembl: any; fda: any } | null>(null);
+  const [isLoadingLive, setIsLoadingLive] = useState(false);
+
+  useEffect(() => {
+    if (expanded && !liveData && !isLoadingLive) {
+      const fetchLiveData = async () => {
+        setIsLoadingLive(true);
+        try {
+          const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+          const [chemblRes, fdaRes] = await Promise.allSettled([
+            fetch(`${baseUrl}/api/drugs/chembl/${encodeURIComponent(drug.name)}`),
+            fetch(`${baseUrl}/api/drugs/fda/${encodeURIComponent(drug.generic_name || drug.name)}`)
+          ]);
+
+          const chembl = chemblRes.status === "fulfilled" && chemblRes.value.ok ? await chemblRes.value.json() : null;
+          const fda = fdaRes.status === "fulfilled" && fdaRes.value.ok ? await fdaRes.value.json() : null;
+          
+          setLiveData({ chembl, fda });
+        } catch (err) {
+          console.error(err);
+        } finally {
+          setIsLoadingLive(false);
+        }
+      };
+      fetchLiveData();
+    }
+  }, [expanded, drug, liveData, isLoadingLive]);
 
   return (
     <motion.div
@@ -136,6 +164,48 @@ export function DrugCard({ drug, rank, onExplain }: DrugCardProps) {
                     ))}
                   </div>
                 </div>
+              )}
+              {/* Live Data Sections */}
+              {isLoadingLive ? (
+                <div className="flex items-center gap-2 text-xs text-[#6b7fa3] py-2">
+                  <div className="w-3 h-3 rounded-full border-2 border-cyan-500/30 border-t-cyan-500 animate-spin" />
+                  Querying Live Scientific Databases...
+                </div>
+              ) : liveData && (
+                <>
+                  {/* ChEMBL Data */}
+                  {liveData.chembl && (
+                    <div className="bg-[#1e2d4a]/20 p-3 rounded-lg border border-[#1e2d4a]/50">
+                      <h4 className="text-[10px] font-mono text-cyan-400/80 mb-2 tracking-wide flex items-center justify-between">
+                        <span>CHEMBL BIOACTIVITY</span>
+                        <span className="text-[#4b5a78] bg-[#050810]/50 px-1.5 py-0.5 rounded">LIVE API</span>
+                      </h4>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                        <div><span className="text-[#4b5a78]">Weight:</span> <span className="text-[#c8d6f0]">{liveData.chembl.molecular_weight || "N/A"}</span></div>
+                        <div><span className="text-[#4b5a78]">Phase:</span> <span className="text-[#c8d6f0]">{liveData.chembl.max_phase || "N/A"}</span></div>
+                        <div><span className="text-[#4b5a78]">AlogP:</span> <span className="text-[#c8d6f0]">{liveData.chembl.alogp || "N/A"}</span></div>
+                        <div><span className="text-[#4b5a78]">Type:</span> <span className="text-[#c8d6f0]">{liveData.chembl.molecule_type || "N/A"}</span></div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* OpenFDA Data */}
+                  {liveData.fda && liveData.fda.events && liveData.fda.events.length > 0 && (
+                    <div className="bg-[#1e2d4a]/20 p-3 rounded-lg border border-[#1e2d4a]/50">
+                      <h4 className="text-[10px] font-mono text-rose-400/80 mb-2 tracking-wide flex items-center justify-between">
+                        <span>OPENFDA CLINICAL REPORTS (TOP 5)</span>
+                        <span className="text-[#4b5a78] bg-[#050810]/50 px-1.5 py-0.5 rounded">LIVE API</span>
+                      </h4>
+                      <div className="flex flex-wrap gap-1.5">
+                        {liveData.fda.events.map((e: any, i: number) => (
+                          <span key={i} className="text-[10px] px-2 py-1 rounded bg-rose-500/10 border border-rose-500/20 text-rose-400/80 flex items-center gap-1">
+                            {e.reaction} <span className="text-rose-400/40">({e.count})</span>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </motion.div>

@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { getBindingSites } from "@/lib/api";
 
 interface ProteinViewer3DProps {
   pdbId: string | null;
   uniprotId: string;
+  performanceMode?: boolean;
 }
 
 // NGL viewer type stubs (loaded from CDN at runtime)
@@ -15,7 +17,7 @@ declare global {
   }
 }
 
-export function ProteinViewer3D({ pdbId, uniprotId }: ProteinViewer3DProps) {
+export function ProteinViewer3D({ pdbId, uniprotId, performanceMode = false }: ProteinViewer3DProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const stageRef = useRef<any>(null);
@@ -32,6 +34,8 @@ export function ProteinViewer3D({ pdbId, uniprotId }: ProteinViewer3DProps) {
   const [autoRotate, setAutoRotate] = useState(false);
   const [showBindingSite, setShowBindingSite] = useState(false);
   const previousShowBindingSite = useRef(showBindingSite);
+  const [realBindingSites, setRealBindingSites] = useState("");
+  const previousRealBindingSites = useRef(realBindingSites);
 
   useEffect(() => {
     let cancelled = false;
@@ -50,6 +54,10 @@ export function ProteinViewer3D({ pdbId, uniprotId }: ProteinViewer3DProps) {
     const initViewer = async () => {
       if (!containerRef.current) return;
       setStatus("loading");
+      
+      getBindingSites(uniprotId).then(res => {
+        if (!cancelled) setRealBindingSites(res);
+      }).catch(console.error);
 
       try {
         await loadNGL();
@@ -63,8 +71,8 @@ export function ProteinViewer3D({ pdbId, uniprotId }: ProteinViewer3DProps) {
 
         const stage = new window.NGL.Stage(containerRef.current, {
           backgroundColor: "#050810",
-          quality: "medium",
-          impostor: true,
+          quality: performanceMode ? "low" : "medium",
+          impostor: !performanceMode,
           fog: false,
         });
         stageRef.current = stage;
@@ -146,13 +154,18 @@ export function ProteinViewer3D({ pdbId, uniprotId }: ProteinViewer3DProps) {
           });
         }
 
-        if (showBindingSite) {
-          component.addRepresentation("spacefill", {
-            sele: "hydrophobic and sidechainAttached",
-            color: "#f43f5e", // Rose-500
+        if (showBindingSite && realBindingSites) {
+          component.addRepresentation("ball+stick", {
+            sele: realBindingSites,
+            color: "#f43f5e",
             opacity: 0.9,
             roughness: 0.2,
             metalness: 0.5,
+          });
+          component.addRepresentation("surface", {
+            sele: realBindingSites,
+            color: "#f43f5e",
+            opacity: 0.4,
           });
         }
 
@@ -184,10 +197,16 @@ export function ProteinViewer3D({ pdbId, uniprotId }: ProteinViewer3DProps) {
   }, [pdbId, uniprotId]);
 
   useEffect(() => {
-    if (compRef.current && status === "ready" && (previousViewMode.current !== viewMode || previousColorScheme.current !== colorScheme || previousShowBindingSite.current !== showBindingSite)) {
+    if (compRef.current && status === "ready" && (
+      previousViewMode.current !== viewMode || 
+      previousColorScheme.current !== colorScheme || 
+      previousShowBindingSite.current !== showBindingSite ||
+      previousRealBindingSites.current !== realBindingSites
+    )) {
       previousViewMode.current = viewMode;
       previousColorScheme.current = colorScheme;
       previousShowBindingSite.current = showBindingSite;
+      previousRealBindingSites.current = realBindingSites;
       compRef.current.removeAllRepresentations();
 
       let cs = colorScheme === "default" ? "residueindex" : colorScheme;
@@ -212,17 +231,25 @@ export function ProteinViewer3D({ pdbId, uniprotId }: ProteinViewer3DProps) {
         });
       }
 
-      if (showBindingSite) {
-        compRef.current.addRepresentation("spacefill", {
-          sele: "hydrophobic and sidechainAttached",
+      if (showBindingSite && realBindingSites) {
+        compRef.current.addRepresentation("ball+stick", {
+          sele: realBindingSites,
           color: "#f43f5e",
           opacity: 0.9,
           roughness: 0.2,
           metalness: 0.5,
         });
+        compRef.current.addRepresentation("surface", {
+          sele: realBindingSites,
+          color: "#f43f5e",
+          opacity: 0.4,
+        });
+        compRef.current.autoView(realBindingSites);
+      } else {
+        compRef.current.autoView();
       }
     }
-  }, [viewMode, colorScheme, showBindingSite, status]);
+  }, [viewMode, colorScheme, showBindingSite, status, realBindingSites]);
 
   useEffect(() => {
     if (stageRef.current && status === "ready") {
@@ -468,7 +495,7 @@ export function ProteinViewer3D({ pdbId, uniprotId }: ProteinViewer3DProps) {
               display: "flex", alignItems: "center", gap: 6,
             }}
           >
-            {showBindingSite ? "⏺ Pocket On" : "⚬ Show Pocket"}
+            {showBindingSite ? "⏺ Reset View" : "⚬ Target Binding Pockets"}
           </button>
 
           {/* Auto rotate toggle */}

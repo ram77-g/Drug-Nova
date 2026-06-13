@@ -65,9 +65,11 @@ async def get_graph(disease: str = Query(..., description="Disease name")):
         )
 
     # Protein nodes + edges to related genes
-    for i, protein in enumerate(proteins):
+    for protein in proteins:
         pid = f"protein_{protein.get('uniprot_id')}"
         name = protein.get("name", "Unknown").split("/")[0].strip()
+        p_name_lower = protein.get("name", "").lower()
+        
         nodes.append(
             GraphNode(
                 id=pid,
@@ -76,9 +78,32 @@ async def get_graph(disease: str = Query(..., description="Disease name")):
                 data={"uniprot_id": protein.get("uniprot_id", ""), "function": protein.get("function", "")[:100]},
             )
         )
-        # Link protein to first gene (simplified association)
-        if genes:
-            linked_gene_id = f"gene_{genes[min(i, len(genes)-1)].get('symbol')}"
+        
+        # Smart gene mapping
+        linked_gene = None
+        for gene in genes:
+            g_sym = gene.get("symbol", "").lower()
+            g_name = gene.get("name", "").lower()
+            
+            if g_sym in p_name_lower or p_name_lower in g_name or g_name in p_name_lower:
+                linked_gene = gene
+                break
+                
+        # Semantic fallbacks for biological synonyms
+        if not linked_gene:
+            if "p53" in p_name_lower:
+                linked_gene = next((g for g in genes if "tp53" in g.get("symbol", "").lower()), None)
+            elif "her2" in p_name_lower or "erbb2" in p_name_lower:
+                linked_gene = next((g for g in genes if "erbb2" in g.get("symbol", "").lower()), None)
+            elif "tau" in p_name_lower:
+                linked_gene = next((g for g in genes if "mapt" in g.get("symbol", "").lower()), None)
+            elif "synuclein" in p_name_lower:
+                linked_gene = next((g for g in genes if "snca" in g.get("symbol", "").lower()), None)
+            elif "dj-1" in p_name_lower:
+                linked_gene = next((g for g in genes if "park7" in g.get("symbol", "").lower()), None)
+                
+        if linked_gene:
+            linked_gene_id = f"gene_{linked_gene.get('symbol')}"
             edges.append(
                 GraphEdge(
                     id=f"e_{linked_gene_id}_{pid}",
@@ -104,7 +129,7 @@ async def get_graph(disease: str = Query(..., description="Disease name")):
                 },
             )
         )
-        # Edge from drug to first matched protein
+        # Edge from drug to target proteins
         target_proteins = drug.get("target_proteins", [])
         for protein in proteins:
             p_name = protein.get("name", "").lower()
@@ -118,6 +143,5 @@ async def get_graph(disease: str = Query(..., description="Disease name")):
                         weight=drug.get("confidence_score", 0),
                     )
                 )
-                break  # one primary edge per drug for clarity
 
     return KnowledgeGraphResponse(nodes=nodes, edges=edges)

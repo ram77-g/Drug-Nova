@@ -54,7 +54,7 @@ async def _mock_explanation(req: AIExplanationRequest) -> AIExplanationResponse:
         confidence="High" if "Approved" in req.rationale else "Moderate",
         disclaimer=(
             "This analysis is AI-generated for research exploration only. "
-            "It does not constitute medical advice and must not replace clinical judgment or trials."
+            "It does not constitute medical advice and must not replace clinical judgment."
         ),
     )
 

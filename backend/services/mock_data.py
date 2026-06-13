@@ -141,6 +141,7 @@ PROTEINS_BY_DISEASE: dict[str, list[Protein]] = {
         Protein(id="P38398", name="BRCA1", uniprot_id="P38398", function="DNA repair, transcription regulation, tumor suppression", structure_available=True),
         Protein(id="P04637", name="p53", uniprot_id="P04637", function="Transcription factor; apoptosis inducer; genome guardian", structure_available=True),
         Protein(id="P04626", name="HER2/ErbB2", uniprot_id="P04626", function="Receptor tyrosine kinase; cell proliferation signaling", structure_available=True),
+        Protein(id="P00533", name="EGFR", uniprot_id="P00533", function="Receptor tyrosine kinase binding ligands of the EGF family", structure_available=True),
         Protein(id="P60484", name="PTEN", uniprot_id="P60484", function="Tumor suppressor; antagonizes PI3K-AKT signaling", structure_available=True),
     ],
     "type 2 diabetes": [
