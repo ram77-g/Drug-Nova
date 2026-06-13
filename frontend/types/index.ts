@@ -100,4 +100,5 @@ export interface PredictionResult {
   recommendation_score: number;
   is_primary_treatment: boolean;
   contributing_factors: FeatureContribution[];
+  target_proteins: string[];
 }

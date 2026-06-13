@@ -7,6 +7,10 @@ interface ProteinViewer3DProps {
   pdbId: string | null;
   uniprotId: string;
   performanceMode?: boolean;
+  dockingSimulation?: {
+    state: 'idle' | 'running' | 'success' | 'partial' | 'fail';
+    drugName?: string;
+  };
 }
 
 // NGL viewer type stubs (loaded from CDN at runtime)
@@ -17,7 +21,7 @@ declare global {
   }
 }
 
-export function ProteinViewer3D({ pdbId, uniprotId, performanceMode = false }: ProteinViewer3DProps) {
+export function ProteinViewer3D({ pdbId, uniprotId, performanceMode = false, dockingSimulation }: ProteinViewer3DProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const stageRef = useRef<any>(null);
@@ -68,6 +72,10 @@ export function ProteinViewer3D({ pdbId, uniprotId, performanceMode = false }: P
           stageRef.current.dispose();
           stageRef.current = null;
         }
+        if (containerRef.current) {
+          containerRef.current.innerHTML = "";
+        }
+        mockLigandRef.current = null;
 
         const stage = new window.NGL.Stage(containerRef.current, {
           backgroundColor: "#050810",
@@ -193,6 +201,10 @@ export function ProteinViewer3D({ pdbId, uniprotId, performanceMode = false }: P
         stageRef.current.dispose();
         stageRef.current = null;
       }
+      if (containerRef.current) {
+        containerRef.current.innerHTML = "";
+      }
+      mockLigandRef.current = null;
     };
   }, [pdbId, uniprotId]);
 
@@ -256,6 +268,178 @@ export function ProteinViewer3D({ pdbId, uniprotId, performanceMode = false }: P
       stageRef.current.setSpin(autoRotate);
     }
   }, [autoRotate, status]);
+
+  // Handle Docking Simulation Animation
+  const mockLigandRef = useRef<any>(null);
+  useEffect(() => {
+    if (!stageRef.current || !compRef.current || status !== "ready" || !dockingSimulation) return;
+
+    const state = dockingSimulation.state;
+
+    // Clean up previous mock ligand
+    if (state === 'idle' && mockLigandRef.current) {
+      stageRef.current.removeComponent(mockLigandRef.current);
+      mockLigandRef.current = null;
+      compRef.current.autoView(2000); // Reset view
+      return;
+    }
+
+    if (state === 'running') {
+      // Add a dramatic spin while simulating
+      stageRef.current.setSpin(true);
+
+      // 1. Zoom into binding pocket
+      if (realBindingSites) {
+        compRef.current.autoView(realBindingSites, 1500);
+      } else {
+        compRef.current.autoView("*", 1500); // Pass '*' as sele so 1500 is treated as duration
+      }
+
+      // 2. Add Mock Ligand Shape
+      if (!mockLigandRef.current) {
+        const shape = new window.NGL.Shape("mock_ligand");
+        
+        // Find center of pocket or structure
+        let cx = 0, cy = 0, cz = 0;
+        try {
+          const struct = compRef.current.structure;
+          let bbox = struct.boundingBox;
+          if (realBindingSites) {
+            const sele = new window.NGL.Selection(realBindingSites);
+            const view = struct.getView(sele);
+            if (view && view.boundingBox) {
+              bbox = view.boundingBox;
+            }
+          }
+          if (bbox && bbox.max && bbox.min) {
+            cx = (bbox.max.x + bbox.min.x) / 2;
+            cy = (bbox.max.y + bbox.min.y) / 2;
+            cz = (bbox.max.z + bbox.min.z) / 2;
+          }
+        } catch (e) {
+          console.warn("Could not calculate center, defaulting to 0,0,0", e);
+        }
+
+        const startZ = cz + 15; // Starting position (floating above)
+        const c1 = [cx, cy, startZ];
+        const c2 = [cx + 2, cy + 1, startZ - 1];
+        const c3 = [cx - 1, cy + 2, startZ + 1];
+        const c4 = [cx + 1, cy - 2, startZ + 2];
+        const c5 = [cx - 2, cy - 1, startZ];
+        const color = [0.2, 0.8, 1.0]; // Cyan pulsing
+        
+        shape.addSphere(c1, color, 1.2, "Core");
+        shape.addSphere(c2, color, 0.8, "R1");
+        shape.addSphere(c3, color, 0.9, "R2");
+        shape.addSphere(c4, color, 0.7, "R3");
+        shape.addSphere(c5, color, 0.9, "R4");
+        
+        shape.addCylinder(c1, c2, color, 0.3);
+        shape.addCylinder(c1, c3, color, 0.3);
+        shape.addCylinder(c1, c4, color, 0.3);
+        shape.addCylinder(c1, c5, color, 0.3);
+        shape.addCylinder(c2, c4, color, 0.2); // ring-like connection
+        
+        const shapeComp = stageRef.current.addComponentFromObject(shape);
+        shapeComp.addRepresentation("buffer", { opacity: 0.8, metalness: 0.5, roughness: 0.2 });
+        mockLigandRef.current = shapeComp;
+
+        // Animate it moving down into the pocket (0,0,0) over 3 seconds
+        let start = Date.now();
+        const duration = 3000;
+        const animate = () => {
+          if (mockLigandRef.current && dockingSimulation.state === 'running') {
+            const elapsed = Date.now() - start;
+            const progress = Math.min(elapsed / duration, 1.0);
+            
+            // Fast fall for first 60%
+            const dropProgress = Math.min(progress / 0.6, 1.0);
+            let currentZ = startZ - (15 * dropProgress);
+
+            // Bounce collision physics for the remaining 40%
+            if (progress > 0.6) {
+              const bounceP = (progress - 0.6) / 0.4; // 0 to 1
+              const bounce = Math.abs(Math.cos(bounceP * Math.PI * 2.5)) * 4 * (1 - bounceP);
+              currentZ += bounce;
+            }
+            
+            shapeComp.setPosition([cx, cy, currentZ]);
+            
+            if (progress < 1.0) requestAnimationFrame(animate);
+          }
+        };
+        requestAnimationFrame(animate);
+      }
+    } else if (state === 'success' || state === 'partial' || state === 'fail') {
+      if (mockLigandRef.current) {
+        const shapeComp = mockLigandRef.current;
+        shapeComp.removeAllRepresentations();
+        
+        const isSuccess = state === 'success' || state === 'partial';
+        let finalColor = [0.9, 0.2, 0.2]; // red
+        if (state === 'success') finalColor = [0.2, 0.9, 0.4]; // green
+        else if (state === 'partial') finalColor = [0.9, 0.8, 0.2]; // yellow
+        
+        const shape = new window.NGL.Shape("mock_ligand_final");
+        
+        // Find center of pocket or structure again
+        let cx = 0, cy = 0, cz = 0;
+        try {
+          const struct = compRef.current.structure;
+          let bbox = struct.boundingBox;
+          if (realBindingSites) {
+            const sele = new window.NGL.Selection(realBindingSites);
+            const view = struct.getView(sele);
+            if (view && view.boundingBox) {
+              bbox = view.boundingBox;
+            }
+          }
+          if (bbox && bbox.max && bbox.min) {
+            cx = (bbox.max.x + bbox.min.x) / 2;
+            cy = (bbox.max.y + bbox.min.y) / 2;
+            cz = (bbox.max.z + bbox.min.z) / 2;
+          }
+        } catch (e) {
+          // ignore
+        }
+
+        // Final position inside pocket
+        const zPos = isSuccess ? cz : cz + 5; // If failed, it bounced out slightly
+        const c1 = [cx, cy, zPos];
+        const c2 = [cx + 2, cy + 1, zPos - 1];
+        const c3 = [cx - 1, cy + 2, zPos + 1];
+        const c4 = [cx + 1, cy - 2, zPos + 2];
+        const c5 = [cx - 2, cy - 1, zPos];
+        
+        shape.addSphere(c1, finalColor, 1.2);
+        shape.addSphere(c2, finalColor, 0.8);
+        shape.addSphere(c3, finalColor, 0.9);
+        shape.addSphere(c4, finalColor, 0.7);
+        shape.addSphere(c5, finalColor, 0.9);
+        
+        shape.addCylinder(c1, c2, finalColor, 0.3);
+        shape.addCylinder(c1, c3, finalColor, 0.3);
+        shape.addCylinder(c1, c4, finalColor, 0.3);
+        shape.addCylinder(c1, c5, finalColor, 0.3);
+        shape.addCylinder(c2, c4, finalColor, 0.2);
+        
+        // Replace shape data
+        stageRef.current.removeComponent(shapeComp);
+        const newShapeComp = stageRef.current.addComponentFromObject(shape);
+        newShapeComp.addRepresentation("buffer", { 
+          opacity: 0.9, metalness: 0.6, roughness: 0.1 
+        });
+        mockLigandRef.current = newShapeComp;
+
+        // Spin the camera slightly for dramatic effect
+        stageRef.current.setSpin(true);
+        setTimeout(() => {
+          if (!autoRotate && stageRef.current) stageRef.current.setSpin(false);
+        }, 2000);
+      }
+    }
+
+  }, [dockingSimulation?.state, status, realBindingSites, autoRotate]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>

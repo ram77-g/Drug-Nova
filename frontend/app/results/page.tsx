@@ -8,6 +8,7 @@ import { DiseaseOverview } from "@/components/results/DiseaseOverview";
 import { DrugCard } from "@/components/results/DrugCard";
 import { AIExplanationPanel } from "@/components/results/AIExplanationPanel";
 import { PredictionEngine } from "@/components/results/PredictionEngine";
+import { DockingSandbox } from "@/components/results/DockingSandbox";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { SearchBar } from "@/components/search/SearchBar";
 import type { Drug } from "@/types";
@@ -18,7 +19,7 @@ const KnowledgeGraph = dynamic(
   { ssr: false, loading: () => <LoadingSpinner message="Loading graph engine..." /> }
 );
 
-type Tab = "overview" | "predict" | "drugs" | "graph";
+type Tab = "overview" | "predict" | "docking" | "drugs" | "graph";
 
 const TAB_STYLES = {
   active: {
@@ -62,6 +63,7 @@ function ResultsContent() {
   const TABS: { id: Tab; label: string }[] = [
     { id: "overview", label: "Overview" },
     { id: "predict", label: "Prediction Engine" },
+    { id: "docking", label: "Molecular Docking" },
     { id: "drugs", label: results ? `Drug Candidates (${results.drugs.length})` : "Drug Candidates" },
     { id: "graph", label: "Knowledge Graph" },
   ];
@@ -145,6 +147,9 @@ function ResultsContent() {
 
             {/* Prediction Engine tab */}
             {activeTab === "predict" && <PredictionEngine diseaseName={results.disease.name} />}
+
+            {/* Docking Sandbox tab */}
+            {activeTab === "docking" && <DockingSandbox diseaseName={results.disease.name} proteins={results.proteins} />}
 
             {/* Drugs tab */}
             {activeTab === "drugs" && (

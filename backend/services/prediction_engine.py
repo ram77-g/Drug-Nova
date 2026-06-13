@@ -20,6 +20,7 @@ class PredictionResult(BaseModel):
     recommendation_score: float
     is_primary_treatment: bool
     contributing_factors: List[FeatureContribution]
+    target_proteins: List[str]
 
 def calculate_predictions(disease: DiseaseInfo, genes: List[Gene], proteins: List[Protein], drugs: List[Drug]) -> List[PredictionResult]:
     """
@@ -154,7 +155,8 @@ def calculate_predictions(disease: DiseaseInfo, genes: List[Gene], proteins: Lis
             confidence_score=round(confidence_score, 3),
             recommendation_score=round((final_score + confidence_score) / 2.0, 3),
             is_primary_treatment=is_primary_treatment,
-            contributing_factors=factors
+            contributing_factors=factors,
+            target_proteins=drug.target_proteins
         )
         predictions.append(res)
         
