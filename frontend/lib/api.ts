@@ -8,6 +8,7 @@ import type {
   KnowledgeGraphResponse,
   AIExplanationResponse,
   ProteinStructureResponse,
+  PredictionResult,
 } from "@/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -98,4 +99,13 @@ export async function getProteinAlignment(proteinA: string, proteinB: string): P
 export async function getBindingSites(uniprotId: string): Promise<string> {
   const { data } = await client.get(`/api/protein/${uniprotId}/binding_sites`);
   return data.residues;
+}
+
+// ── Predictions ───────────────────────────────────────────────────────────────
+
+export async function getPredictions(disease: string): Promise<PredictionResult[]> {
+  const { data } = await client.get<PredictionResult[]>("/api/predict", {
+    params: { disease },
+  });
+  return data;
 }

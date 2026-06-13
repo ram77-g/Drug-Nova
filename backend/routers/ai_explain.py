@@ -29,6 +29,10 @@ MOCK_PATHWAYS = {
     "type 2 diabetes": ["Insulin receptor signaling", "AMPK metabolic axis", "PPARG-mediated adipogenesis", "Glucose transporter regulation", "Incretin axis (GLP-1)"],
     "covid-19": ["ACE2 viral entry pathway", "JAK-STAT cytokine signaling", "IL-6 cytokine storm cascade", "NF-κB inflammatory axis", "RdRp viral replication"],
     "rheumatoid arthritis": ["TNF-alpha/NF-κB pathway", "JAK-STAT3 inflammatory axis", "B-cell/T-cell synovial activation", "Complement cascade", "RANKL osteoclast activation"],
+    "asthma": ["Th2 cytokine signaling (IL-4/IL-5)", "Eosinophilic inflammation cascade", "Beta-2 adrenergic bronchodilation", "Glucocorticoid receptor signaling", "IgE-mediated mast cell activation"],
+    "osteoporosis": ["RANK/RANKL/OPG axis", "Osteoclast differentiation pathway", "Parathyroid hormone (PTH) signaling", "Estrogen receptor signaling", "Wnt/beta-catenin pathway"],
+    "depression": ["Monoaminergic neurotransmission (5-HT/DA/NE)", "BDNF/TrkB neurotrophic signaling", "HPA axis and stress response", "NMDA receptor-mediated synaptic plasticity", "Neuroinflammation cascade"],
+    "nsclc": ["EGFR tyrosine kinase signaling", "KRAS/BRAF/MEK/ERK pathway", "ALK/ROS1 fusion signaling", "PD-1/PD-L1 immune checkpoint", "PI3K/AKT/mTOR pathway"],
 }
 
 

@@ -81,3 +81,23 @@ export interface ProteinStructureResponse {
 }
 
 export type NodeType = "disease" | "gene" | "protein" | "drug";
+
+export interface FeatureContribution {
+  feature: string;
+  contribution: string;
+  score_value: number;
+}
+
+export interface PredictionResult {
+  drug_id: string;
+  drug_name: string;
+  generic_name: string;
+  repurposing_score: number;
+  protein_compatibility: number;
+  toxicity_risk_score: number;
+  toxicity_risk_label: string;
+  confidence_score: number;
+  recommendation_score: number;
+  is_primary_treatment: boolean;
+  contributing_factors: FeatureContribution[];
+}
