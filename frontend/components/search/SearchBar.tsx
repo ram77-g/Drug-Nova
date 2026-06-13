@@ -18,6 +18,10 @@ const POPULAR = [
   "Type 2 Diabetes",
   "COVID-19",
   "Rheumatoid Arthritis",
+  "Asthma",
+  "Osteoporosis",
+  "Major Depressive Disorder",
+  "Non-Small Cell Lung Cancer"
 ];
 
 export function SearchBar({ onSearch, onSuggestionsFetch, suggestions, loading }: SearchBarProps) {

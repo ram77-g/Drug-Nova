@@ -1,4 +1,6 @@
-"""
+import os
+
+MOCK_DATA_CONTENT = '''"""
 Mock biomedical data service.
 """
 
@@ -76,38 +78,22 @@ GENES_BY_DISEASE: dict[str, list[Gene]] = {
         Gene(id="ENSG00000077238", symbol="IL4R", name="Interleukin 4 Receptor", chromosome="16p12.1", relevance_score=0.95),
         Gene(id="ENSG00000113525", symbol="IL5", name="Interleukin 5", chromosome="5q31.1", relevance_score=0.92),
         Gene(id="ENSG00000169252", symbol="ADRB2", name="Adrenoceptor Beta 2", chromosome="5q32", relevance_score=0.98),
-        Gene(id="ENSG00000169194", symbol="IL13", name="Interleukin 13", chromosome="5q31.1", relevance_score=0.93),
-        Gene(id="ENSG00000146083", symbol="TSLP", name="Thymic Stromal Lymphopoietin", chromosome="5q22.1", relevance_score=0.89),
-        Gene(id="ENSG00000120159", symbol="CRHR1", name="Corticotropin Releasing Hormone Receptor 1", chromosome="17q21.31", relevance_score=0.86),
-        Gene(id="ENSG00000163359", symbol="TNFAIP3", name="TNF Alpha Induced Protein 3", chromosome="6q23.3", relevance_score=0.84),
     ],
     "osteoporosis": [
         Gene(id="ENSG00000120889", symbol="TNFSF11", name="RANKL", chromosome="13q14.11", relevance_score=0.97),
         Gene(id="ENSG00000143228", symbol="CTSK", name="Cathepsin K", chromosome="1q21.3", relevance_score=0.93),
         Gene(id="ENSG00000091831", symbol="ESR1", name="Estrogen Receptor 1", chromosome="6q25.1", relevance_score=0.90),
-        Gene(id="ENSG00000160836", symbol="PTH1R", name="Parathyroid Hormone 1 Receptor", chromosome="3p21.31", relevance_score=0.94),
-        Gene(id="ENSG00000111424", symbol="VDR", name="Vitamin D Receptor", chromosome="12q13.11", relevance_score=0.91),
-        Gene(id="ENSG00000036828", symbol="CASR", name="Calcium Sensing Receptor", chromosome="3q13.33", relevance_score=0.88),
-        Gene(id="ENSG00000162551", symbol="LRP5", name="LDL Receptor Related Protein 5", chromosome="11q13.2", relevance_score=0.85),
     ],
     "depression": [
         Gene(id="ENSG00000108576", symbol="SLC6A4", name="Serotonin Transporter", chromosome="17q11.2", relevance_score=0.96),
         Gene(id="ENSG00000102468", symbol="HTR2A", name="5-Hydroxytryptamine Receptor 2A", chromosome="13q14.2", relevance_score=0.91),
         Gene(id="ENSG00000189221", symbol="MAOA", name="Monoamine Oxidase A", chromosome="Xp11.3", relevance_score=0.89),
-        Gene(id="ENSG00000176697", symbol="BDNF", name="Brain Derived Neurotrophic Factor", chromosome="11p14.1", relevance_score=0.93),
-        Gene(id="ENSG00000103546", symbol="SLC6A2", name="Norepinephrine Transporter", chromosome="16q12.2", relevance_score=0.88),
-        Gene(id="ENSG00000149295", symbol="DRD2", name="Dopamine Receptor D2", chromosome="11q23.2", relevance_score=0.85),
-        Gene(id="ENSG00000096060", symbol="FKBP5", name="FKBP Prolyl Isomerase 5", chromosome="6p21.31", relevance_score=0.82),
     ],
     "nsclc": [
         Gene(id="ENSG00000146648", symbol="EGFR", name="Epidermal Growth Factor Receptor", chromosome="7p11.2", relevance_score=0.98),
         Gene(id="ENSG00000171094", symbol="ALK", name="Anaplastic Lymphoma Kinase", chromosome="2p23.2", relevance_score=0.95),
         Gene(id="ENSG00000188157", symbol="PDCD1", name="Programmed Cell Death 1", chromosome="2q37.3", relevance_score=0.94),
         Gene(id="ENSG00000047936", symbol="ROS1", name="ROS Proto-Oncogene 1", chromosome="6q22.1", relevance_score=0.91),
-        Gene(id="ENSG00000133703", symbol="KRAS", name="KRAS Proto-Oncogene", chromosome="12p12.1", relevance_score=0.96),
-        Gene(id="ENSG00000105976", symbol="MET", name="MET Proto-Oncogene", chromosome="7q31.2", relevance_score=0.89),
-        Gene(id="ENSG00000165731", symbol="RET", name="Ret Proto-Oncogene", chromosome="10q11.21", relevance_score=0.88),
-        Gene(id="ENSG00000157764", symbol="BRAF", name="B-Raf Proto-Oncogene", chromosome="7q34", relevance_score=0.87),
     ]
 }
 
@@ -170,38 +156,22 @@ PROTEINS_BY_DISEASE: dict[str, list[Protein]] = {
         Protein(id="P24394", name="IL4R", uniprot_id="P24394", function="Interleukin 4 Receptor", structure_available=True),
         Protein(id="P05113", name="IL5", uniprot_id="P05113", function="Interleukin 5", structure_available=True),
         Protein(id="P07550", name="ADRB2", uniprot_id="P07550", function="Adrenoceptor Beta 2", structure_available=True),
-        Protein(id="P35225", name="IL13", uniprot_id="P35225", function="Interleukin 13", structure_available=True),
-        Protein(id="Q969D9", name="TSLP", uniprot_id="Q969D9", function="Thymic Stromal Lymphopoietin", structure_available=True),
-        Protein(id="P34998", name="CRHR1", uniprot_id="P34998", function="Corticotropin Releasing Hormone Receptor 1", structure_available=True),
-        Protein(id="P21580", name="TNFAIP3", uniprot_id="P21580", function="TNF Alpha Induced Protein 3", structure_available=True),
     ],
     "osteoporosis": [
         Protein(id="O14788", name="RANKL", uniprot_id="O14788", function="Receptor activator of nuclear factor kappa-B ligand", structure_available=True),
         Protein(id="P43235", name="Cathepsin K", uniprot_id="P43235", function="Cathepsin K", structure_available=True),
         Protein(id="P03372", name="ESR1", uniprot_id="P03372", function="Estrogen Receptor 1", structure_available=True),
-        Protein(id="Q03431", name="PTH1R", uniprot_id="Q03431", function="Parathyroid Hormone 1 Receptor", structure_available=True),
-        Protein(id="P11473", name="VDR", uniprot_id="P11473", function="Vitamin D Receptor", structure_available=True),
-        Protein(id="P41180", name="CASR", uniprot_id="P41180", function="Calcium Sensing Receptor", structure_available=True),
-        Protein(id="O75197", name="LRP5", uniprot_id="O75197", function="LDL Receptor Related Protein 5", structure_available=True),
     ],
     "depression": [
         Protein(id="P31645", name="SERT", uniprot_id="P31645", function="Serotonin Transporter", structure_available=True),
         Protein(id="P28223", name="HTR2A", uniprot_id="P28223", function="5-Hydroxytryptamine Receptor 2A", structure_available=True),
         Protein(id="P21397", name="MAOA", uniprot_id="P21397", function="Monoamine Oxidase A", structure_available=True),
-        Protein(id="P23560", name="BDNF", uniprot_id="P23560", function="Brain Derived Neurotrophic Factor", structure_available=True),
-        Protein(id="P23975", name="SLC6A2", uniprot_id="P23975", function="Norepinephrine Transporter", structure_available=True),
-        Protein(id="P14416", name="DRD2", uniprot_id="P14416", function="Dopamine Receptor D2", structure_available=True),
-        Protein(id="Q13451", name="FKBP5", uniprot_id="Q13451", function="FKBP Prolyl Isomerase 5", structure_available=True),
     ],
     "nsclc": [
         Protein(id="P00533", name="EGFR", uniprot_id="P00533", function="Epidermal Growth Factor Receptor", structure_available=True),
         Protein(id="Q9UM73", name="ALK", uniprot_id="Q9UM73", function="Anaplastic Lymphoma Kinase", structure_available=True),
         Protein(id="Q15116", name="PD-1", uniprot_id="Q15116", function="Programmed Cell Death 1", structure_available=True),
         Protein(id="P08922", name="ROS1", uniprot_id="P08922", function="ROS Proto-Oncogene 1", structure_available=True),
-        Protein(id="P01116", name="KRAS", uniprot_id="P01116", function="KRAS Proto-Oncogene", structure_available=True),
-        Protein(id="P08581", name="MET", uniprot_id="P08581", function="Hepatocyte growth factor receptor", structure_available=True),
-        Protein(id="P07949", name="RET", uniprot_id="P07949", function="Proto-oncogene tyrosine-protein kinase receptor Ret", structure_available=True),
-        Protein(id="P15056", name="BRAF", uniprot_id="P15056", function="Serine/threonine-protein kinase B-raf", structure_available=True),
     ]
 }
 
@@ -232,30 +202,19 @@ DRUGS_BY_DISEASE: dict[str, list[Drug]] = {
         Drug(id="DB00171", name="Albuterol", generic_name="albuterol", confidence_score=0.98, mechanism="Beta-2 adrenergic agonism", target_proteins=["ADRB2"], side_effects=["Tremor", "Tachycardia"], rationale="Bronchodilator", approval_status="FDA Approved", original_indication="Asthma", pubmed_refs=[]),
         Drug(id="DB08885", name="Mepolizumab", generic_name="mepolizumab", confidence_score=0.95, mechanism="IL-5 antagonism", target_proteins=["IL5"], side_effects=["Headache"], rationale="Reduces eosinophils", approval_status="FDA Approved", original_indication="Asthma", pubmed_refs=[]),
         Drug(id="DB14246", name="Dupilumab", generic_name="dupilumab", confidence_score=0.93, mechanism="IL-4R alpha antagonism", target_proteins=["IL4R"], side_effects=["Injection site reaction"], rationale="Blocks IL-4 and IL-13 signaling", approval_status="FDA Approved", original_indication="Asthma", pubmed_refs=[]),
-        Drug(id="DB00588", name="Fluticasone", generic_name="fluticasone propionate", confidence_score=0.96, mechanism="Glucocorticoid receptor agonism", target_proteins=["Glucocorticoid receptor"], side_effects=["Thrush"], rationale="Broad anti-inflammatory effect", approval_status="FDA Approved", original_indication="Asthma", pubmed_refs=[]),
-        Drug(id="DB00471", name="Montelukast", generic_name="montelukast", confidence_score=0.91, mechanism="Leukotriene receptor antagonism", target_proteins=["CysLT1"], side_effects=["Headache"], rationale="Blocks airway constriction", approval_status="FDA Approved", original_indication="Asthma", pubmed_refs=[]),
     ],
     "osteoporosis": [
         Drug(id="DB06681", name="Denosumab", generic_name="denosumab", confidence_score=0.96, mechanism="RANKL inhibition", target_proteins=["RANKL"], side_effects=["Hypocalcemia"], rationale="Inhibits osteoclast formation", approval_status="FDA Approved", original_indication="Osteoporosis", pubmed_refs=[]),
         Drug(id="DB00965", name="Raloxifene", generic_name="raloxifene", confidence_score=0.88, mechanism="SERM", target_proteins=["ESR1"], side_effects=["Hot flashes"], rationale="Estrogen agonist in bone", approval_status="FDA Approved", original_indication="Osteoporosis", pubmed_refs=[]),
-        Drug(id="DB06285", name="Teriparatide", generic_name="teriparatide", confidence_score=0.95, mechanism="PTH receptor agonism", target_proteins=["PTH1R"], side_effects=["Dizziness"], rationale="Stimulates bone formation", approval_status="FDA Approved", original_indication="Osteoporosis", pubmed_refs=[]),
-        Drug(id="DB00630", name="Alendronate", generic_name="alendronate", confidence_score=0.93, mechanism="FPPS inhibition", target_proteins=["FPPS"], side_effects=["Esophagitis"], rationale="Inhibits bone resorption", approval_status="FDA Approved", original_indication="Osteoporosis", pubmed_refs=[]),
-        Drug(id="DB12012", name="Romosozumab", generic_name="romosozumab", confidence_score=0.94, mechanism="Sclerostin inhibition", target_proteins=["Sclerostin"], side_effects=["Joint pain"], rationale="Increases bone formation", approval_status="FDA Approved", original_indication="Osteoporosis", pubmed_refs=[]),
     ],
     "depression": [
         Drug(id="DB00153", name="Fluoxetine", generic_name="fluoxetine", confidence_score=0.97, mechanism="SSRI", target_proteins=["SERT"], side_effects=["Insomnia", "Nausea"], rationale="Increases synaptic serotonin", approval_status="FDA Approved", original_indication="Major Depressive Disorder", pubmed_refs=[]),
         Drug(id="DB00804", name="Mirtazapine", generic_name="mirtazapine", confidence_score=0.90, mechanism="Alpha-2 and 5-HT2A antagonist", target_proteins=["HTR2A"], side_effects=["Weight gain", "Sedation"], rationale="Enhances noradrenergic and serotonergic release", approval_status="FDA Approved", original_indication="Major Depressive Disorder", pubmed_refs=[]),
-        Drug(id="DB00242", name="Venlafaxine", generic_name="venlafaxine", confidence_score=0.95, mechanism="SNRI", target_proteins=["SERT", "SLC6A2"], side_effects=["Nausea", "Sweating"], rationale="Increases serotonin and norepinephrine", approval_status="FDA Approved", original_indication="Major Depressive Disorder", pubmed_refs=[]),
-        Drug(id="DB01156", name="Bupropion", generic_name="bupropion", confidence_score=0.92, mechanism="NDRI", target_proteins=["SLC6A2", "DRD2"], side_effects=["Insomnia"], rationale="Increases dopamine and norepinephrine", approval_status="FDA Approved", original_indication="Major Depressive Disorder", pubmed_refs=[]),
-        Drug(id="DB01220", name="Ketamine", generic_name="ketamine", confidence_score=0.88, mechanism="NMDA receptor antagonism", target_proteins=["NMDA receptor"], side_effects=["Dissociation"], rationale="Rapid acting antidepressant", approval_status="FDA Approved", original_indication="Major Depressive Disorder", pubmed_refs=[]),
     ],
     "nsclc": [
         Drug(id="DB08916", name="Crizotinib", generic_name="crizotinib", confidence_score=0.94, mechanism="ALK/ROS1 inhibitor", target_proteins=["ALK", "ROS1"], side_effects=["Vision disorder", "Nausea"], rationale="Targets specific oncogenic fusions", approval_status="FDA Approved", original_indication="NSCLC", pubmed_refs=[]),
         Drug(id="DB09037", name="Pembrolizumab", generic_name="pembrolizumab", confidence_score=0.96, mechanism="PD-1 inhibitor", target_proteins=["PD-1"], side_effects=["Fatigue", "Immune-mediated adverse events"], rationale="Reverses T-cell exhaustion", approval_status="FDA Approved", original_indication="NSCLC", pubmed_refs=[]),
         Drug(id="DB00317", name="Gefitinib", generic_name="gefitinib", confidence_score=0.92, mechanism="EGFR inhibitor", target_proteins=["EGFR"], side_effects=["Rash", "Diarrhea"], rationale="Targets EGFR mutations", approval_status="FDA Approved", original_indication="NSCLC", pubmed_refs=[]),
-        Drug(id="DB15822", name="Sotorasib", generic_name="sotorasib", confidence_score=0.91, mechanism="KRAS G12C inhibitor", target_proteins=["KRAS"], side_effects=["Diarrhea"], rationale="Targets KRAS G12C mutation", approval_status="FDA Approved", original_indication="NSCLC", pubmed_refs=[]),
-        Drug(id="DB15277", name="Capmatinib", generic_name="capmatinib", confidence_score=0.89, mechanism="MET inhibitor", target_proteins=["MET"], side_effects=["Edema"], rationale="Targets MET exon 14 skipping", approval_status="FDA Approved", original_indication="NSCLC", pubmed_refs=[]),
-        Drug(id="DB08911", name="Dabrafenib", generic_name="dabrafenib", confidence_score=0.88, mechanism="BRAF inhibitor", target_proteins=["BRAF"], side_effects=["Fever"], rationale="Targets BRAF V600E mutation", approval_status="FDA Approved", original_indication="NSCLC", pubmed_refs=[]),
     ]
 }
 
@@ -274,3 +233,8 @@ def get_disease_data(disease_key: str):
     proteins = PROTEINS_BY_DISEASE.get(disease_key, [])
     drugs = DRUGS_BY_DISEASE.get(disease_key, [])
     return disease, genes, proteins, drugs
+'''
+
+with open(r"c:\Users\praka\OneDrive\Documents\Drug-Nova\backend\services\mock_data.py", "w", encoding="utf-8") as f:
+    f.write(MOCK_DATA_CONTENT)
+print("Updated mock_data.py")

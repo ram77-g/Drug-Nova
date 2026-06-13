@@ -12,6 +12,10 @@ const DISEASES = [
   { name: "Type 2 Diabetes", desc: "Insulin resistance · PPARG · GLP-1 axis", emoji: "🩸", accent: "rgba(234,179,8,0.12)", border: "rgba(234,179,8,0.2)" },
   { name: "COVID-19", desc: "SARS-CoV-2 · ACE2 receptor · cytokine storm", emoji: "🦠", accent: "rgba(59,130,246,0.12)", border: "rgba(59,130,246,0.2)" },
   { name: "Rheumatoid Arthritis", desc: "TNF-alpha · JAK-STAT · autoimmune synovitis", emoji: "🦴", accent: "rgba(168,85,247,0.12)", border: "rgba(168,85,247,0.2)" },
+  { name: "Asthma", desc: "Airway inflammation · IL-4/IL-5 · beta-2 adrenergic", emoji: "🫁", accent: "rgba(6,182,212,0.12)", border: "rgba(6,182,212,0.2)" },
+  { name: "Osteoporosis", desc: "Bone resorption · RANKL · Cathepsin K", emoji: "🦴", accent: "rgba(156,163,175,0.12)", border: "rgba(156,163,175,0.2)" },
+  { name: "Major Depressive Disorder", desc: "Serotonin transporter · monoamine oxidase", emoji: "😔", accent: "rgba(99,102,241,0.12)", border: "rgba(99,102,241,0.2)" },
+  { name: "Non-Small Cell Lung Cancer", desc: "EGFR mutations · ALK/ROS1 fusions", emoji: "🫁", accent: "rgba(20,184,166,0.12)", border: "rgba(20,184,166,0.2)" },
 ];
 
 export default function SearchPage() {

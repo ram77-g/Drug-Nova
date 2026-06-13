@@ -6,6 +6,7 @@ import { getProteinStructure } from "@/lib/api";
 import type { ProteinStructureResponse } from "@/types";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
 import { GlassCard } from "@/components/ui/GlassCard";
+import { SearchableSelect } from "./SearchableSelect";
 
 interface ProteinListItem {
   uniprot_id: string;
@@ -64,24 +65,13 @@ export function ProteinComparePanel({
              Structure {panelId}
            </span>
         </div>
-        <div className="relative">
-          <select
+        <div className="relative z-50">
+          <SearchableSelect 
+            options={proteins.map(p => ({ value: p.uniprot_id, label: `${p.name} (${p.uniprot_id})` }))}
             value={selectedId}
-            onChange={(e) => onSelect(e.target.value)}
-            className="w-full bg-[#050810] border border-[#1e2d4a] rounded-xl px-4 py-3
-                       text-sm text-white font-medium focus:outline-none focus:border-[#00d4ff]
-                       transition-colors appearance-none cursor-pointer"
-          >
-            <option value="" disabled>Select a protein...</option>
-            {proteins.map((p) => (
-              <option key={p.uniprot_id} value={p.uniprot_id}>
-                {p.name} ({p.uniprot_id})
-              </option>
-            ))}
-          </select>
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#6b7fa3]">
-            ▼
-          </div>
+            onChange={onSelect}
+            placeholder="Select a protein..."
+          />
         </div>
       </div>
 

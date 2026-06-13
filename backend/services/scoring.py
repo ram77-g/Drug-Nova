@@ -10,10 +10,9 @@ from models.schemas import Drug
 def rank_drugs(drugs: list[Drug], disease_name: str) -> list[Drug]:
     """
     Apply a simple weighted scoring model:
-      - Base confidence score                  (40%)
-      - Number of target proteins overlapping  (30%)
-      - Approval status bonus                  (20%)
-      - Literature evidence (ref count)        (10%)
+      - Base confidence score                  (70%)
+      - Number of target proteins overlapping  (15%)
+      - Approval status bonus                  (15%)
 
     Returns drugs sorted by adjusted score descending.
     """
@@ -31,17 +30,13 @@ def rank_drugs(drugs: list[Drug], disease_name: str) -> list[Drug]:
         elif "withdrawn" in status:
             approval_weight = 0.20
 
-        # Protein target coverage (normalized 0–1, cap at 5 targets)
-        protein_score = min(len(drug.target_proteins) / 5.0, 1.0)
-
-        # Literature evidence (normalized 0–1, cap at 5 refs)
-        lit_score = min(len(drug.pubmed_refs) / 5.0, 1.0)
+        # Protein target coverage (normalized 0–1, cap at 2 targets)
+        protein_score = min(len(drug.target_proteins) / 2.0, 1.0)
 
         adjusted = (
-            drug.confidence_score * 0.40
-            + protein_score * 0.30
-            + approval_weight * 0.20
-            + lit_score * 0.10
+            drug.confidence_score * 0.70
+            + protein_score * 0.15
+            + approval_weight * 0.15
         )
 
         # Return a copy with adjusted confidence

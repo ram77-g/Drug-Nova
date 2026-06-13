@@ -36,6 +36,14 @@ const FEATURED_PROTEINS = [
   { id: "P23458", name: "JAK1",                     pdb: "3EYG", disease: "Rheumatoid Arthritis" },
   { id: "P29597", name: "TYK2",                     pdb: null,   disease: "Rheumatoid Arthritis" },
   { id: "Q9Y2R2", name: "PTPN22",                   pdb: null,   disease: "Rheumatoid Arthritis" },
+  { id: "P56817", name: "BACE1",                   pdb: null,   disease: "Alzheimer's" },
+  { id: "P43220", name: "GLP1R",                   pdb: null,   disease: "Type 2 Diabetes" },
+  { id: "P24394", name: "IL4R",                    pdb: null,   disease: "Asthma" },
+  { id: "P07550", name: "ADRB2",                   pdb: null,   disease: "Asthma" },
+  { id: "O14788", name: "RANKL",                   pdb: null,   disease: "Osteoporosis" },
+  { id: "P31645", name: "SERT",                    pdb: null,   disease: "Depression" },
+  { id: "Q9UM73", name: "ALK",                     pdb: null,   disease: "NSCLC" },
+  { id: "Q15116", name: "PD-1",                    pdb: null,   disease: "NSCLC" },
 ];
 
 // ─── PDB Viewer ──────────────────────────────────────────────────────────────

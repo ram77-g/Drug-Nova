@@ -5,10 +5,11 @@ import Link from "next/link";
 import { ParticleField } from "./ParticleField";
 
 const STATS = [
-  { value: "6+", label: "Disease Models" },
-  { value: "30+", label: "Drug Candidates" },
-  { value: "AI", label: "Explanations" },
+  { value: "10+", label: "Disease Models" },
+  { value: "50+", label: "Proteins" },
+  { value: "100+", label: "Drug Candidates" },
   { value: "3D", label: "Protein Viewer" },
+  { value: "Align", label: "Protein Comparison" },
 ];
 
 const PILLS = [
@@ -206,8 +207,8 @@ export function HeroSection() {
           transition={{ duration: 0.5, delay: 0.56 }}
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
-            gap: 12, width: "100%", maxWidth: 500,
+            gridTemplateColumns: "repeat(5, 1fr)",
+            gap: 12, width: "100%", maxWidth: 640,
           }}
         >
           {STATS.map((stat, i) => (
