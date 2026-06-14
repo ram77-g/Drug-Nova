@@ -96,6 +96,19 @@ export async function getProteinAlignment(proteinA: string, proteinB: string): P
   return data;
 }
 
+export function getReportDownloadUrl(uniprotA: string, uniprotB: string): string {
+  return `${API_BASE}/api/protein/report?uniprot_a=${uniprotA}&uniprot_b=${uniprotB}`;
+}
+
+export function getPdfReportDownloadUrl(uniprotA: string, uniprotB: string): string {
+  return `${API_BASE}/api/protein/report/pdf?uniprot_a=${uniprotA}&uniprot_b=${uniprotB}`;
+}
+
+export async function getProteinProperties(uniprotId: string): Promise<any> {
+  const { data } = await client.get(`/api/protein/${uniprotId}/properties`);
+  return data;
+}
+
 export async function getBindingSites(uniprotId: string): Promise<string> {
   const { data } = await client.get(`/api/protein/${uniprotId}/binding_sites`);
   return data.residues;

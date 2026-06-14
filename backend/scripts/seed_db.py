@@ -31,7 +31,7 @@ async def seed_db():
     print("Inserting Diseases...")
     disease_docs = []
     for key, disease in DISEASE_CATALOG.items():
-        doc = disease.dict()
+        doc = disease.model_dump()
         doc["key"] = key  # store the internal search key
         disease_docs.append(doc)
     if disease_docs:
@@ -42,7 +42,7 @@ async def seed_db():
     gene_docs = []
     for disease_key, genes in GENES_BY_DISEASE.items():
         for g in genes:
-            doc = g.dict()
+            doc = g.model_dump()
             doc["disease_key"] = disease_key
             gene_docs.append(doc)
     if gene_docs:
@@ -53,7 +53,7 @@ async def seed_db():
     protein_docs = []
     for disease_key, proteins in PROTEINS_BY_DISEASE.items():
         for p in proteins:
-            doc = p.dict()
+            doc = p.model_dump()
             doc["disease_key"] = disease_key
             protein_docs.append(doc)
     if protein_docs:
@@ -64,7 +64,7 @@ async def seed_db():
     drug_docs = []
     for disease_key, drugs in DRUGS_BY_DISEASE.items():
         for d in drugs:
-            doc = d.dict()
+            doc = d.model_dump()
             doc["disease_key"] = disease_key
             drug_docs.append(doc)
     if drug_docs:
@@ -74,7 +74,7 @@ async def seed_db():
     print("Inserting Protein Structures...")
     structure_docs = []
     for key, struct in PROTEIN_STRUCTURES.items():
-        structure_docs.append(struct.dict())
+        structure_docs.append(struct.model_dump())
     if structure_docs:
         await db.protein_structures.insert_many(structure_docs)
 

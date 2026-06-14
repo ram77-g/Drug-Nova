@@ -37,7 +37,7 @@ export function DockingSandbox({ diseaseName, proteins }: DockingSandboxProps) {
     load();
   }, [diseaseName]);
 
-  const selectedProtein = proteins.find((p) => p.id === selectedProteinId);
+  const selectedProtein = proteins.find((p) => p.uniprot_id === selectedProteinId);
   const selectedPrediction = predictions.find((p) => p.drug_id === selectedDrugId);
 
   // Reset simulation state when selections change
@@ -103,8 +103,8 @@ export function DockingSandbox({ diseaseName, proteins }: DockingSandboxProps) {
               >
                 <option value="" disabled>-- Choose a protein structure --</option>
                 {proteins.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} ({p.id}) {p.pdb_id ? `[PDB: ${p.pdb_id}]` : '[AlphaFold]'}
+                  <option key={p.uniprot_id} value={p.uniprot_id}>
+                    {p.name} ({p.uniprot_id})
                   </option>
                 ))}
               </select>
@@ -156,9 +156,9 @@ export function DockingSandbox({ diseaseName, proteins }: DockingSandboxProps) {
           <div className="flex-1 relative bg-black/20">
             {selectedProtein ? (
               <ProteinViewer3D 
-                key={selectedProtein.id}
-                pdbId={selectedProtein.pdb_id} 
-                uniprotId={selectedProtein.id} 
+                key={selectedProtein.uniprot_id}
+                pdbId={null} 
+                uniprotId={selectedProtein.uniprot_id} 
                 performanceMode={false} 
                 dockingSimulation={{
                   state: dockingState,

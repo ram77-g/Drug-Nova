@@ -118,7 +118,7 @@ export function NodeDetailSidebar({ node, onClose }: NodeDetailSidebarProps) {
               </div>
             )}
 
-            {!node.data || Object.keys(node.data).length === 0 && (
+            {(!node.data || Object.keys(node.data).length === 0) && (
               <p style={{ color: "#4b5a78", fontSize: 13, fontStyle: "italic" }}>
                 No additional data available.
               </p>
