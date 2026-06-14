@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
+import { ChatBot } from "@/components/ui/ChatBot";
 
 export const metadata: Metadata = {
   title: "Drug Nova — AI-Powered Drug Repurposing Platform",
@@ -27,6 +28,7 @@ export default function RootLayout({
       <body className="bg-[#050810] text-[#c8d6f0] antialiased">
         <Navbar />
         <main className="pt-14">{children}</main>
+        <ChatBot />
       </body>
     </html>
   );

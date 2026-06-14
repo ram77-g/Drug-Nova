@@ -91,3 +91,16 @@ class ProteinStructureResponse(BaseModel):
     alphafold_url: str
     pdb_id: Optional[str] = None
     description: str
+
+
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+
+class ChatRequest(BaseModel):
+    messages: List[ChatMessage]
+
+
+class ChatResponse(BaseModel):
+    reply: str

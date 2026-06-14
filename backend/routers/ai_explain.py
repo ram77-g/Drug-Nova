@@ -1,6 +1,6 @@
 """
 AI Explanation router.
-Uses OpenAI (if API key set) with intelligent mock fallback.
+Uses Gemini (if API key set) with intelligent mock fallback.
 """
 import os
 from fastapi import APIRouter
@@ -63,11 +63,12 @@ async def _mock_explanation(req: AIExplanationRequest) -> AIExplanationResponse:
     )
 
 
-async def _openai_explanation(req: AIExplanationRequest) -> AIExplanationResponse:
-    """Call OpenAI API for a live explanation."""
+async def _gemini_explanation(req: AIExplanationRequest) -> AIExplanationResponse:
+    """Call Gemini API for a live explanation."""
     try:
-        from openai import AsyncOpenAI
-        client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+        from google import genai
+        from google.genai import types
+        client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
         prompt = f"""You are a biomedical AI assistant specializing in drug repurposing research.
 
@@ -84,30 +85,35 @@ Provide:
 2. Key molecular pathways involved (list 3-4)
 3. Confidence assessment (High/Moderate/Low) with brief justification
 
-Format your response as JSON with keys: explanation, pathways (array), confidence (string)."""
+Format your response as pure JSON without any markdown formatting like ```json ... ```. The JSON must have these exact string keys: "explanation", "pathways" (an array of strings), "confidence" (a string)."""
 
-        response = await client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": prompt}],
-            response_format={"type": "json_object"},
-            max_tokens=500,
+        response = await client.aio.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
         )
 
         import json
-        data = json.loads(response.choices[0].message.content)
+        text = response.text.strip()
+        if text.startswith("```json"):
+            text = text[7:]
+        if text.endswith("```"):
+            text = text[:-3]
+            
+        data = json.loads(text.strip())
         return AIExplanationResponse(
             explanation=data.get("explanation", ""),
             pathways=data.get("pathways", []),
             confidence=data.get("confidence", "Moderate"),
             disclaimer="AI-generated research exploration only. Not medical advice.",
         )
-    except Exception:
+    except Exception as e:
+        print(f"Gemini API Error: {e}")
         return await _mock_explanation(req)
 
 
 @router.post("/explain", response_model=AIExplanationResponse)
 async def explain(req: AIExplanationRequest):
     """Generate AI explanation for a drug repurposing candidate."""
-    if os.getenv("OPENAI_API_KEY"):
-        return await _openai_explanation(req)
+    if os.getenv("GEMINI_API_KEY"):
+        return await _gemini_explanation(req)
     return await _mock_explanation(req)

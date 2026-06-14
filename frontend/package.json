@@ -15,6 +15,7 @@
     "@radix-ui/react-separator": "^1.1.9",
     "@radix-ui/react-slot": "^1.2.5",
     "@radix-ui/react-tooltip": "^1.2.9",
+    "@tailwindcss/typography": "^0.5.20",
     "@xyflow/react": "^12.11.0",
     "axios": "^1.17.0",
     "class-variance-authority": "^0.7.1",
@@ -24,6 +25,7 @@
     "next": "16.2.7",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "react-markdown": "^10.1.0",
     "reactflow": "^11.11.4",
     "tailwind-merge": "^3.6.0"
   },

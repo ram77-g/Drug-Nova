@@ -104,6 +104,16 @@ export function getPdfReportDownloadUrl(uniprotA: string, uniprotB: string): str
   return `${API_BASE}/api/protein/report/pdf?uniprot_a=${uniprotA}&uniprot_b=${uniprotB}`;
 }
 
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export async function sendChatMessage(messages: ChatMessage[]): Promise<string> {
+  const { data } = await client.post('/api/chat', { messages });
+  return data.reply;
+}
+
 export async function getProteinProperties(uniprotId: string): Promise<any> {
   const { data } = await client.get(`/api/protein/${uniprotId}/properties`);
   return data;
