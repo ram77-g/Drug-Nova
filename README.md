@@ -9,11 +9,12 @@ Drug Nova is a full-stack AI-assisted bioinformatics platform that surfaces comp
 ## ✨ Major Features
 
 1. **AI Repurposing Engine:** Uses a context-aware Tiered Model to calculate repurposing viability across 6 major diseases, analyzing clinical evidence, binding affinity, and target overlaps.
-2. **Molecular Docking Sandbox:** Select any protein target and drug candidate to run a simulated physical docking protocol.
+2. **Interactive AI Assistant:** A persistent, site-aware chatbot powered by Gemini 2.5 Flash. It utilizes dynamic RAG (Retrieval-Augmented Generation) against local MongoDB datasets to answer questions about specific drugs, diseases, and proteins, while guiding users through the platform's features.
+3. **Molecular Docking Sandbox:** Select any protein target and drug candidate to run a simulated physical docking protocol.
     - **Context-Aware Affinity:** Dynamically calculates true biological target compatibility vs random physical collision probability.
     - **Collision Physics:** Implements mathematical damped-cosine kinetic animations for realistic binding site settling.
-3. **Knowledge Graph Explorer:** Interactive nodal visualization using React Flow to trace the biological pathways from Disease -> Gene -> Protein -> Drug.
-4. **Protein 3D Sequence & Viewer:** Next-gen structure viewer using NGL/Mol* to visualize PDB and AlphaFold models with pLDDT confidence and binding pockets.
+4. **Knowledge Graph Explorer:** Interactive nodal visualization using React Flow to trace the biological pathways from Disease -> Gene -> Protein -> Drug.
+5. **Protein 3D Sequence & Viewer:** Next-gen structure viewer using NGL/Mol* to visualize PDB and AlphaFold models with pLDDT confidence and binding pockets.
 
 ---
 
@@ -24,7 +25,7 @@ Create a `backend/.env` file:
 ```env
 MONGO_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/?retryWrites=true&w=majority
 MONGO_DB_NAME=drug_nova
-OPENAI_API_KEY=your_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
 Seed the database:
@@ -57,7 +58,7 @@ App runs at: http://localhost:3000
 - **Backend:** FastAPI, Pydantic, Python
 - **Database:** MongoDB Atlas
 - **3D & Graphs:** NGL Viewer, React Flow, Framer Motion
-- **AI:** OpenAI GPT-4o-mini 
+- **AI:** Google Gemini 2.5 Flash
 
 ---
 
