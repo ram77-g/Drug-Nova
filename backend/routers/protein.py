@@ -329,12 +329,14 @@ async def generate_protein_comparison_report_pdf(uniprot_a: str = Query(...), un
     # Output to temp file then read bytes
     fd, temp_path = tempfile.mkstemp(suffix=".pdf")
     os.close(fd)
-    pdf.output(temp_path)
     
-    with open(temp_path, "rb") as f:
-        pdf_bytes = f.read()
-    
-    os.remove(temp_path)
+    try:
+        pdf.output(temp_path)
+        with open(temp_path, "rb") as f:
+            pdf_bytes = f.read()
+    finally:
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
     
     filename = f"Comparison_Report_{uniprot_a.upper()}_vs_{uniprot_b.upper()}.pdf"
     

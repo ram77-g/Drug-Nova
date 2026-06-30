@@ -48,7 +48,7 @@ export function ProteinViewer3D({ pdbId, uniprotId, performanceMode = false, doc
       return new Promise((resolve, reject) => {
         if (window.NGL) { resolve(); return; }
         const script = document.createElement("script");
-        script.src = "https://cdn.jsdelivr.net/npm/ngl@2.3.1/dist/ngl.js";
+        script.src = "https://unpkg.com/ngl@2.3.1/dist/ngl.js";
         script.onload = () => resolve();
         script.onerror = () => reject(new Error("Failed to load NGL"));
         document.head.appendChild(script);
@@ -113,9 +113,13 @@ export function ProteinViewer3D({ pdbId, uniprotId, performanceMode = false, doc
           try {
             const check = await fetch(opt.url, { method: "HEAD" });
             if (check.ok) {
-              component = await stage.loadFile(opt.url, { ext: opt.ext });
-              loaded = true;
-              break;
+              try {
+                component = await stage.loadFile(opt.url, { ext: opt.ext });
+                loaded = true;
+                break;
+              } catch (innerErr) {
+                console.warn(`Local load failed for ${opt.url}`, innerErr);
+              }
             }
           } catch {
             // Silently fail and check next local option
@@ -123,16 +127,18 @@ export function ProteinViewer3D({ pdbId, uniprotId, performanceMode = false, doc
         }
 
         if (!loaded) {
-          let dataUrl: string;
-          let ext: string;
           if (pdbId) {
-            dataUrl = `rcsb://${pdbId}`;
-            ext = "pdb";
-          } else {
-            dataUrl = `https://alphafold.ebi.ac.uk/files/AF-${uniprotId}-F1-model_v4.cif`;
-            ext = "cif";
+            try {
+              component = await stage.loadFile(`rcsb://${pdbId}`, { ext: "pdb" });
+              loaded = true;
+            } catch (rcsbErr) {
+              console.warn(`Failed to load from RCSB PDB for ${pdbId}, falling back to AlphaFold`, rcsbErr);
+            }
           }
-          component = await stage.loadFile(dataUrl, { ext });
+          if (!loaded) {
+            const dataUrl = `https://alphafold.ebi.ac.uk/files/AF-${uniprotId}-F1-model_v6.cif`;
+            component = await stage.loadFile(dataUrl, { ext: "cif" });
+          }
         }
 
         if (cancelled) {

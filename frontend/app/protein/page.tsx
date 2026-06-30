@@ -111,6 +111,14 @@ function ProteinViewerContent() {
   const initialId = searchParams.get("id") || "P37840";
 
   const [selectedId, setSelectedId] = useState(initialId);
+
+  useEffect(() => {
+    const id = searchParams.get("id") || "P37840";
+    if (id !== selectedId) {
+      setSelectedId(id);
+    }
+  }, [searchParams, selectedId]);
+
   const [protein, setProtein] = useState<ProteinStructureResponse | null>(null);
   const [metaLoading, setMetaLoading] = useState(false);
   const [customId, setCustomId] = useState("");
