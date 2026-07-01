@@ -11,10 +11,12 @@ load_dotenv()
 
 from contextlib import asynccontextmanager
 from db.mongodb import connect_to_mongo, close_mongo_connection
+from services.prediction_engine import load_global_gnn_weights
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await connect_to_mongo()
+    load_global_gnn_weights()   # load GNN weights once, at startup
     yield
     await close_mongo_connection()
 
