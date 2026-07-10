@@ -1,24 +1,30 @@
 """
 Drug repurposing scoring pipeline.
 Applies a weighted multi-factor ranking to candidate drugs.
-Designed to be swappable with an ML model in production.
 """
 
 from models.schemas import Drug
 
+# ✅ ADD THIS
+try:
+    from services.gnn_inference import predict_delta_g, delta_g_to_score
+    GNN_AVAILABLE = True
+except ImportError:
+    GNN_AVAILABLE = False
 
-def rank_drugs(drugs: list[Drug], disease_name: str) -> list[Drug]:
+
+def rank_drugs(drugs: list[Drug], disease_name: str,
+               uniprot_id: str = None) -> list[Drug]:
+    # ✅ Added uniprot_id parameter — pass this from predict.py when calling rank_drugs
     """
-    Apply a simple weighted scoring model:
-      - Base confidence score                  (70%)
-      - Number of target proteins overlapping  (15%)
-      - Approval status bonus                  (15%)
-
-    Returns drugs sorted by adjusted score descending.
+    Weighted scoring model.
+    If GNN is available and a uniprot_id is provided, real binding energy
+    replaces the fake protein_score. Otherwise falls back to old formula.
     """
     ranked = []
+
     for drug in drugs:
-        # Approval status weight
+        # Approval weight — UNCHANGED
         approval_weight = 0.0
         status = drug.approval_status.lower()
         if "fda approved" in status:
@@ -30,16 +36,33 @@ def rank_drugs(drugs: list[Drug], disease_name: str) -> list[Drug]:
         elif "withdrawn" in status:
             approval_weight = 0.20
 
-        # Protein target coverage (normalized 0–1, cap at 2 targets)
-        protein_score = min(len(drug.target_proteins) / 2.0, 1.0)
+        # ✅ CHANGED: Try real GNN binding score first
+        gnn_binding = None
+        if GNN_AVAILABLE and uniprot_id and hasattr(drug, 'smiles') and drug.smiles:
+            try:
+                result      = predict_delta_g(uniprot_id, drug.name, drug.smiles)
+                gnn_binding = delta_g_to_score(result["predicted_delta_g"])
+            except Exception:
+                gnn_binding = None
 
-        adjusted = (
-            drug.confidence_score * 0.70
-            + protein_score * 0.15
-            + approval_weight * 0.15
-        )
+        if gnn_binding is not None:
+            # Real GNN score replaces the fake protein_score
+            # GNN binding now carries 40% weight instead of 15%
+            adjusted = (
+                gnn_binding           * 0.40
+                + drug.confidence_score * 0.30
+                + approval_weight       * 0.15
+                + min(len(drug.target_proteins) / 2.0, 1.0) * 0.15
+            )
+        else:
+            # ✅ Original fallback — UNCHANGED from your original file
+            protein_score = min(len(drug.target_proteins) / 2.0, 1.0)
+            adjusted = (
+                drug.confidence_score * 0.70
+                + protein_score       * 0.15
+                + approval_weight     * 0.15
+            )
 
-        # Return a copy with adjusted confidence
         ranked.append(
             Drug(
                 **{

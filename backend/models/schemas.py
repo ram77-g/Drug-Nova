@@ -33,6 +33,9 @@ class Drug(BaseModel):
     approval_status: str
     original_indication: str
     pubmed_refs: List[str] = []
+    # ✅ NEW — SMILES string for GNN docking
+    # None for drugs not in the GNN training set (falls back to hash formula)
+    smiles: Optional[str] = None
 
 
 class DiseaseInfo(BaseModel):
@@ -104,3 +107,10 @@ class ChatRequest(BaseModel):
 
 class ChatResponse(BaseModel):
     reply: str
+
+
+# ✅ NEW — request body for the /dock and /dock/ensemble endpoints
+class DockRequest(BaseModel):
+    uniprot_id: str    # e.g. "P00533" for EGFR
+    smiles: str        # drug SMILES string
+    drug_name: str = "unknown"

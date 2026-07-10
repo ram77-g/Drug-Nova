@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { getPredictions } from "@/lib/api";
 import type { Protein, PredictionResult } from "@/types";
 import { LoadingSpinner } from "@/components/ui/LoadingSpinner";
@@ -45,17 +45,9 @@ export function DockingSandbox({ diseaseName, proteins }: DockingSandboxProps) {
     setDockingState('idle');
   }, [selectedProteinId, selectedDrugId]);
 
-  // Calculate dynamic affinity when selection changes
-  const dynamicAffinity = useMemo(() => {
-    if (!selectedProtein || !selectedPrediction) return 0;
-    const isBiologicalTarget = selectedPrediction.target_proteins?.some(t => t.toLowerCase() === selectedProtein.name.toLowerCase()) ?? false;
-    if (isBiologicalTarget) {
-      return selectedPrediction.protein_compatibility;
-    }
-    // Deterministic pseudo-random based on names so it doesn't jump but looks random
-    const hash = (selectedProtein.name.charCodeAt(0) + selectedPrediction.drug_name.charCodeAt(0)) % 15;
-    return 0.15 + (hash / 100.0); // 15% to 29%
-  }, [selectedProtein, selectedPrediction]);
+  // ❌ REMOVED: dynamicAffinity useMemo — that was the fake hash-based
+  // estimate. The real ΔG now comes straight from the GNN via /dock,
+  // driven by selectedProtein.uniprot_id + selectedPrediction.smiles.
 
   if (loading) {
     return (
@@ -89,7 +81,7 @@ export function DockingSandbox({ diseaseName, proteins }: DockingSandboxProps) {
         {/* Left Column: Controls & Simulator */}
         <div className="space-y-6">
           <div className="bg-[#0d1425]/80 p-6 rounded-xl border border-[#1e2d4a]/60 space-y-6">
-            
+
             {/* Protein Selector */}
             <div>
               <label className="flex items-center gap-2 text-sm font-bold text-[#c8d6f0] mb-2 uppercase tracking-wider">
@@ -137,13 +129,19 @@ export function DockingSandbox({ diseaseName, proteins }: DockingSandboxProps) {
           </div>
 
           {/* Terminal Simulator */}
-          {selectedProtein && selectedPrediction && (
+          {selectedProtein && selectedPrediction && selectedPrediction.smiles && (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <DockingSimulator 
-                drugName={selectedPrediction.drug_name} 
-                affinityScore={dynamicAffinity} 
+              <DockingSimulator
+                drugName={selectedPrediction.drug_name}
+                uniprotId={selectedProtein.uniprot_id}
+                smiles={selectedPrediction.smiles}
                 onStateChange={setDockingState}
               />
+            </div>
+          )}
+          {selectedProtein && selectedPrediction && !selectedPrediction.smiles && (
+            <div className="p-4 rounded-lg border border-yellow-500/30 bg-yellow-500/10 text-yellow-400 text-sm">
+              This drug has no SMILES string on record, so real docking can't run for it.
             </div>
           )}
         </div>
@@ -155,11 +153,11 @@ export function DockingSandbox({ diseaseName, proteins }: DockingSandboxProps) {
           </div>
           <div className="flex-1 relative bg-black/20">
             {selectedProtein ? (
-              <ProteinViewer3D 
+              <ProteinViewer3D
                 key={selectedProtein.uniprot_id}
-                pdbId={null} 
-                uniprotId={selectedProtein.uniprot_id} 
-                performanceMode={false} 
+                pdbId={null}
+                uniprotId={selectedProtein.uniprot_id}
+                performanceMode={false}
                 dockingSimulation={{
                   state: dockingState,
                   drugName: selectedPrediction?.drug_name

@@ -28,6 +28,7 @@ export interface Drug {
   approval_status: string;
   original_indication: string;
   pubmed_refs: string[];
+  smiles?: string;
 }
 
 export interface DiseaseInfo {
@@ -101,4 +102,7 @@ export interface PredictionResult {
   is_primary_treatment: boolean;
   contributing_factors: FeatureContribution[];
   target_proteins: string[];
+  smiles: string;
+  predicted_delta_g: number;
+  binding_source: string;
 }

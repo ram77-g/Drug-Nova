@@ -6,8 +6,15 @@ import { Play, Loader2, CheckCircle2, ShieldAlert } from "lucide-react";
 
 interface DockingSimulatorProps {
   drugName: string;
-  affinityScore: number;
+  uniprotId: string;   // target protein, e.g. "P00533" for EGFR
+  smiles: string;       // drug SMILES string
   onStateChange?: (state: 'idle' | 'running' | 'success' | 'partial' | 'fail') => void;
+}
+
+interface DockResult {
+  predicted_delta_g: number;
+  binding_strength: "STRONG" | "MODERATE" | "WEAK";
+  binding_score: number;
 }
 
 const STEPS = [
@@ -18,45 +25,73 @@ const STEPS = [
   "Minimizing final Binding Energy (ΔG)..."
 ];
 
-export function DockingSimulator({ drugName, affinityScore, onStateChange }: DockingSimulatorProps) {
+export function DockingSimulator({ drugName, uniprotId, smiles, onStateChange }: DockingSimulatorProps) {
   const [isSimulating, setIsSimulating] = useState(false);
   const [currentStep, setCurrentStep] = useState(-1);
   const [isComplete, setIsComplete] = useState(false);
+  const [result, setResult] = useState<DockResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  // Map the 0-1 affinity score to realistic kcal/mol
-  // High affinity (0.9+) -> -11 to -12 kcal/mol
-  // Low affinity (0.2+) -> -3 to -4 kcal/mol
-  const kcalMol = (-2.0 - (affinityScore * 10.0)).toFixed(1);
-  
-  const percent = affinityScore * 100;
-  let bindingStrength: 'strong' | 'moderate' | 'weak' = 'weak';
-  if (percent >= 75) bindingStrength = 'strong';
-  else if (percent >= 50) bindingStrength = 'moderate';
-
+  // Drive the terminal animation off wall-clock time while the real
+  // request is in flight, so the UI doesn't just sit frozen if the
+  // API is faster or slower than the old fixed 1.2s/step timing.
   useEffect(() => {
     if (!isSimulating) return;
 
     let stepIndex = 0;
-    const interval = setInterval(() => {
-      if (stepIndex < STEPS.length) {
-        setCurrentStep(stepIndex);
+    const stepTimer = setInterval(() => {
+      if (stepIndex < STEPS.length - 1) {
         stepIndex++;
-      } else {
-        clearInterval(interval);
-        setTimeout(() => {
-          setIsSimulating(false);
-          setIsComplete(true);
-          const stateToEmit = bindingStrength === 'strong' ? 'success' : bindingStrength === 'moderate' ? 'partial' : 'fail';
-          onStateChange?.(stateToEmit);
-        }, 800);
+        setCurrentStep(stepIndex);
       }
-    }, 1200); // 1.2s per step
+    }, 900);
 
-    return () => clearInterval(interval);
-  }, [isSimulating, bindingStrength, onStateChange]);
+    (async () => {
+      setCurrentStep(0);
+      setError(null);
+      try {
+        const res = await fetch("http://127.0.0.1:8000/api/predict/dock", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ uniprot_id: uniprotId, smiles, drug_name: drugName }),
+        });
+
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body.detail || "Docking request failed");
+        }
+
+        const data: DockResult = await res.json();
+
+        // let the animation reach the final step before revealing the result
+        clearInterval(stepTimer);
+        setCurrentStep(STEPS.length - 1);
+        await new Promise((r) => setTimeout(r, 500));
+
+        setResult(data);
+        setIsSimulating(false);
+        setIsComplete(true);
+
+        const stateToEmit =
+          data.binding_strength === "STRONG" ? "success" :
+          data.binding_strength === "MODERATE" ? "partial" : "fail";
+        onStateChange?.(stateToEmit);
+      } catch (e: any) {
+        clearInterval(stepTimer);
+        setError(e.message || "Docking failed — please try again");
+        setIsSimulating(false);
+        onStateChange?.("fail");
+      }
+    })();
+
+    return () => clearInterval(stepTimer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSimulating]);
 
   const handleStart = () => {
     setIsComplete(false);
+    setResult(null);
+    setError(null);
     setCurrentStep(-1);
     setIsSimulating(true);
     onStateChange?.('running');
@@ -64,10 +99,18 @@ export function DockingSimulator({ drugName, affinityScore, onStateChange }: Doc
 
   const handleReset = () => {
     setIsComplete(false);
+    setResult(null);
+    setError(null);
     setCurrentStep(-1);
     setIsSimulating(false);
     onStateChange?.('idle');
   };
+
+  const bindingStrength = result
+    ? (result.binding_strength.toLowerCase() as 'strong' | 'moderate' | 'weak')
+    : 'weak';
+  const percent = result ? result.binding_score * 100 : 0;
+  const kcalMol = result ? result.predicted_delta_g.toFixed(1) : null;
 
   return (
     <div className="bg-[#080d19] rounded-xl border border-[#1e2d4a]/60 overflow-hidden">
@@ -86,7 +129,7 @@ export function DockingSimulator({ drugName, affinityScore, onStateChange }: Doc
             RUN SIMULATION
           </button>
         )}
-        {isComplete && (
+        {(isComplete || error) && (
           <button
             onClick={handleReset}
             className="text-xs text-[#6b7fa3] hover:text-white transition-colors"
@@ -98,9 +141,15 @@ export function DockingSimulator({ drugName, affinityScore, onStateChange }: Doc
 
       {/* Terminal Area */}
       <div className="p-4 font-mono text-sm h-[200px] flex flex-col justify-end bg-gradient-to-b from-[#080d19] to-[#0a1120]">
-        {!isSimulating && !isComplete && (
+        {!isSimulating && !isComplete && !error && (
           <div className="text-center text-[#4b5a78] my-auto">
             Ready to simulate docking for <span className="text-cyan-400">{drugName}</span>.
+          </div>
+        )}
+
+        {error && (
+          <div className="text-center text-red-400 my-auto">
+            {error}
           </div>
         )}
 
@@ -130,7 +179,7 @@ export function DockingSimulator({ drugName, affinityScore, onStateChange }: Doc
 
         {/* Final Result */}
         <AnimatePresence>
-          {isComplete && (
+          {isComplete && result && kcalMol && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -158,7 +207,7 @@ export function DockingSimulator({ drugName, affinityScore, onStateChange }: Doc
                   <div className={`text-2xl font-bold ${bindingStrength === 'strong' ? "text-emerald-400" : bindingStrength === 'moderate' ? "text-yellow-400" : "text-red-400"}`}>
                     {kcalMol}
                   </div>
-                  <div className="text-xs text-[#6b7fa3]">Calculated ΔG (kcal/mol)</div>
+                  <div className="text-xs text-[#6b7fa3]">GNN-Predicted ΔG (kcal/mol)</div>
                 </div>
               </div>
             </motion.div>
